@@ -25,7 +25,7 @@ const HeroSection = () => {
 
           {/* Main Heading */}
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 animate-slide-up">
-            TradeSense <span className="gradient-text">AI</span>
+            <span className="gradient-text">{t('hero_title_line1')}</span>
             <br />
             <span className="text-3xl md:text-5xl lg:text-6xl">{t('hero_title_line2')}</span>
           </h1>
