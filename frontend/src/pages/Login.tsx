@@ -200,7 +200,7 @@ const Login = () => {
           </div>
 
           {/* Google Sign In */}
-          <div className="w-full mb-3">
+          <div className="w-full mb-3 flex justify-center">
             <div ref={googleButtonRef} className={isGoogleLoading ? 'pointer-events-none opacity-70' : ''} />
           </div>
 

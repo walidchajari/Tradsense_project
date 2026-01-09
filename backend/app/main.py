@@ -9,7 +9,7 @@ import time
 
 from .db import models
 from .db.database import SessionLocal, engine, get_db
-from .api import market, challenges, extra, compat, auth
+from .api import market, challenges, extra, compat, auth, chat
 from .services.market_scraper_casablanca import scrape_casablanca_live_overview
 from .services.auth import hash_password
 
@@ -186,6 +186,7 @@ app.include_router(challenges.router)
 app.include_router(extra.router)
 app.include_router(compat.router)
 app.include_router(auth.router)
+app.include_router(chat.router)
 
 @app.get("/health")
 def health():

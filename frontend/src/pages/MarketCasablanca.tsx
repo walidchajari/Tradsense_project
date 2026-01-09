@@ -24,19 +24,18 @@ const MarketCasablanca = () => {
     useEffect(() => {
         let isMounted = true;
         let intervalId: number | null = null;
-        let eventSource: EventSource | null = null;
 
         const applyData = (data: any) => {
             if (!isMounted) return;
-            if (data.status === 'success') {
-                setStocks(data.data);
-                setSelectedStock((prev) => prev || data.data[0]);
-            }
+            const items = Array.isArray(data?.items) ? data.items : data?.data;
+            if (!Array.isArray(items)) return;
+            setStocks(items);
+            setSelectedStock((prev) => prev || items[0]);
         };
 
         const fetchStocks = async () => {
             try {
-                const response = await fetch(`${API_BASE_URL}/bvc/overview`);
+                const response = await fetch(`${API_BASE_URL}/casablanca/companies?limit=500&minimal=false`);
                 const data = await response.json();
                 applyData(data);
             } catch (error) {
@@ -46,34 +45,11 @@ const MarketCasablanca = () => {
             }
         };
 
-        const startPolling = () => {
-            fetchStocks();
-            intervalId = window.setInterval(fetchStocks, 5000);
-        };
-
-        try {
-            eventSource = new EventSource(`${API_BASE_URL}/bvc/stream`);
-            eventSource.onmessage = (event) => {
-                try {
-                    const data = JSON.parse(event.data);
-                    applyData(data);
-                    if (isMounted) setLoading(false);
-                } catch (err) {
-                    console.error('Error parsing stream data:', err);
-                }
-            };
-            eventSource.onerror = () => {
-                if (eventSource) eventSource.close();
-                eventSource = null;
-                if (!intervalId) startPolling();
-            };
-        } catch (err) {
-            startPolling();
-        }
+        fetchStocks();
+        intervalId = window.setInterval(fetchStocks, 5000);
 
         return () => {
             isMounted = false;
-            if (eventSource) eventSource.close();
             if (intervalId) window.clearInterval(intervalId);
         };
     }, []);

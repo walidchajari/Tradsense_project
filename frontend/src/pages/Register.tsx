@@ -255,7 +255,9 @@ const Register = () => {
 
           {/* Google Sign Up */}
           <div className="w-full mb-6">
-            <div ref={googleButtonRef} className={isGoogleLoading ? 'pointer-events-none opacity-70' : ''} />
+            <div className="flex justify-center">
+              <div ref={googleButtonRef} className={isGoogleLoading ? 'pointer-events-none opacity-70' : ''} />
+            </div>
           </div>
 
           {/* Form */}

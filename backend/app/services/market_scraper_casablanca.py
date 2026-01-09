@@ -24,7 +24,8 @@ if _ssl_verify_env in {"0", "false", "no"}:
     _SSL_VERIFY = False
 else:
     _SSL_VERIFY = certifi.where() if certifi is not None else True
-_ALLOW_INSECURE = os.environ.get("BVC_ALLOW_INSECURE", "1").lower() not in {"0", "false", "no"}
+_ALLOW_INSECURE = os.environ.get("BVC_ALLOW_INSECURE", "0").lower() not in {"0", "false", "no"}
+_FORCE_INSECURE = os.environ.get("BVC_FORCE_INSECURE", "0").lower() not in {"0", "false", "no"}
 _HEADERS = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
     "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
@@ -82,7 +83,7 @@ def _request_with_retries(url, *, params=None, timeout=10, expect_json=False):
     if requests is None:
         raise RuntimeError("requests is not installed")
     attempts = 3
-    verify = _SSL_VERIFY
+    verify = False if _FORCE_INSECURE else _SSL_VERIFY
     last_error = None
     for _ in range(attempts):
         try:
