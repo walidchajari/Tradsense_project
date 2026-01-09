@@ -1,0 +1,27 @@
+# Core FastAPI framework
+fastapi
+uvicorn[standard]
+
+# WSGI Server
+gunicorn
+
+# Database & ORM
+sqlalchemy
+psycopg2-binary
+
+# Web Scraping & Data
+yfinance
+beautifulsoup4
+requests
+pandas
+playwright
+
+# Background Tasks
+celery[beat]
+redis
+
+# Settings management
+pydantic-settings
+
+# Google OAuth verification
+google-auth

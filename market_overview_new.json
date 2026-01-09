@@ -1,0 +1,650 @@
+[
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Apple",
+    "price": null,
+    "symbol": "AAPL",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Microsoft",
+    "price": null,
+    "symbol": "MSFT",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "NVIDIA",
+    "price": null,
+    "symbol": "NVDA",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Amazon",
+    "price": null,
+    "symbol": "AMZN",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Meta Platforms",
+    "price": null,
+    "symbol": "META",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Alphabet Class A",
+    "price": null,
+    "symbol": "GOOGL",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Alphabet Class C",
+    "price": null,
+    "symbol": "GOOG",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Tesla",
+    "price": null,
+    "symbol": "TSLA",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Broadcom",
+    "price": null,
+    "symbol": "AVGO",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Costco",
+    "price": null,
+    "symbol": "COST",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Netflix",
+    "price": null,
+    "symbol": "NFLX",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Adobe",
+    "price": null,
+    "symbol": "ADBE",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "PepsiCo",
+    "price": null,
+    "symbol": "PEP",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Advanced Micro Devices",
+    "price": null,
+    "symbol": "AMD",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Intel",
+    "price": null,
+    "symbol": "INTC",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Cisco",
+    "price": null,
+    "symbol": "CSCO",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Comcast",
+    "price": null,
+    "symbol": "CMCSA",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "T-Mobile US",
+    "price": null,
+    "symbol": "TMUS",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Texas Instruments",
+    "price": null,
+    "symbol": "TXN",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Qualcomm",
+    "price": null,
+    "symbol": "QCOM",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Amgen",
+    "price": null,
+    "symbol": "AMGN",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Intuit",
+    "price": null,
+    "symbol": "INTU",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Applied Materials",
+    "price": null,
+    "symbol": "AMAT",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Starbucks",
+    "price": null,
+    "symbol": "SBUX",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Intuitive Surgical",
+    "price": null,
+    "symbol": "ISRG",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Booking Holdings",
+    "price": null,
+    "symbol": "BKNG",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Gilead Sciences",
+    "price": null,
+    "symbol": "GILD",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Analog Devices",
+    "price": null,
+    "symbol": "ADI",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Regeneron Pharmaceuticals",
+    "price": null,
+    "symbol": "REGN",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Micron Technology",
+    "price": null,
+    "symbol": "MU",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Mondelez",
+    "price": null,
+    "symbol": "MDLZ",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "PayPal",
+    "price": null,
+    "symbol": "PYPL",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "ADP",
+    "price": null,
+    "symbol": "ADP",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Vertex Pharmaceuticals",
+    "price": null,
+    "symbol": "VRTX",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Palo Alto Networks",
+    "price": null,
+    "symbol": "PANW",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Synopsys",
+    "price": null,
+    "symbol": "SNPS",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Cadence Design",
+    "price": null,
+    "symbol": "CDNS",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "KLA",
+    "price": null,
+    "symbol": "KLAC",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "MercadoLibre",
+    "price": null,
+    "symbol": "MELI",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Cintas",
+    "price": null,
+    "symbol": "CTAS",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "O'Reilly Automotive",
+    "price": null,
+    "symbol": "ORLY",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Lam Research",
+    "price": null,
+    "symbol": "LRCX",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Marriott",
+    "price": null,
+    "symbol": "MAR",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Charter Communications",
+    "price": null,
+    "symbol": "CHTR",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "CSX",
+    "price": null,
+    "symbol": "CSX",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "American Electric Power",
+    "price": null,
+    "symbol": "AEP",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Electronic Arts",
+    "price": null,
+    "symbol": "EA",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Monster Beverage",
+    "price": null,
+    "symbol": "MNST",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Keurig Dr Pepper",
+    "price": null,
+    "symbol": "KDP",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "NXP Semiconductors",
+    "price": null,
+    "symbol": "NXPI",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Crypto",
+    "name": "Bitcoin",
+    "price": null,
+    "symbol": "BTC-USD",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Crypto",
+    "name": "Ethereum",
+    "price": null,
+    "symbol": "ETH-USD",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Crypto",
+    "name": "BNB",
+    "price": null,
+    "symbol": "BNB-USD",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Crypto",
+    "name": "Solana",
+    "price": null,
+    "symbol": "SOL-USD",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Crypto",
+    "name": "XRP",
+    "price": null,
+    "symbol": "XRP-USD",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "FX",
+    "market": "Forex",
+    "name": "EUR/USD",
+    "price": null,
+    "symbol": "EURUSD=X",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "FX",
+    "market": "Forex",
+    "name": "GBP/USD",
+    "price": null,
+    "symbol": "GBPUSD=X",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "FX",
+    "market": "Forex",
+    "name": "USD/JPY",
+    "price": null,
+    "symbol": "USDJPY=X",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "FX",
+    "market": "Forex",
+    "name": "USD/CAD",
+    "price": null,
+    "symbol": "USDCAD=X",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "FX",
+    "market": "Forex",
+    "name": "USD/CHF",
+    "price": null,
+    "symbol": "USDCHF=X",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "DH",
+    "market": "Bourse de Casablanca",
+    "name": "Maroc Telecom",
+    "price": 669.53,
+    "symbol": "IAM",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "DH",
+    "market": "Bourse de Casablanca",
+    "name": "Attijariwafa Bank",
+    "price": 553.89,
+    "symbol": "ATW",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "DH",
+    "market": "Bourse de Casablanca",
+    "name": "BCP",
+    "price": 738.8,
+    "symbol": "BCP",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "DH",
+    "market": "Bourse de Casablanca",
+    "name": "Bank of Africa",
+    "price": 925.0,
+    "symbol": "BOA",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "DH",
+    "market": "Bourse de Casablanca",
+    "name": "CIH Bank",
+    "price": 165.93,
+    "symbol": "CIH",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "DH",
+    "market": "Bourse de Casablanca",
+    "name": "BMCI",
+    "price": 944.68,
+    "symbol": "BMCI",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "DH",
+    "market": "Bourse de Casablanca",
+    "name": "Credit du Maroc",
+    "price": 967.12,
+    "symbol": "CDM",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "DH",
+    "market": "Bourse de Casablanca",
+    "name": "CFG Bank",
+    "price": 476.82,
+    "symbol": "CFG",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "DH",
+    "market": "Bourse de Casablanca",
+    "name": "Addoha",
+    "price": 442.95,
+    "symbol": "ADH",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "DH",
+    "market": "Bourse de Casablanca",
+    "name": "R\u00e9sidences Dar Saada",
+    "price": 546.79,
+    "symbol": "RDS",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "DH",
+    "market": "Bourse de Casablanca",
+    "name": "Sanlam Maroc",
+    "price": 530.49,
+    "symbol": "MUT",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "DH",
+    "market": "Bourse de Casablanca",
+    "name": "CMT",
+    "price": 120.62,
+    "symbol": "CMT",
+    "volume": null
+  }
+]

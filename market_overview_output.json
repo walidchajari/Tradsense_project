@@ -1,0 +1,506 @@
+[
+  {
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Apple",
+    "price": 392.87,
+    "symbol": "AAPL"
+  },
+  {
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Microsoft",
+    "price": 339.75,
+    "symbol": "MSFT"
+  },
+  {
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "NVIDIA",
+    "price": 67.37,
+    "symbol": "NVDA"
+  },
+  {
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Amazon",
+    "price": 138.97,
+    "symbol": "AMZN"
+  },
+  {
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Meta Platforms",
+    "price": 388.84,
+    "symbol": "META"
+  },
+  {
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Alphabet Class A",
+    "price": 279.95,
+    "symbol": "GOOGL"
+  },
+  {
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Alphabet Class C",
+    "price": 200.55,
+    "symbol": "GOOG"
+  },
+  {
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Tesla",
+    "price": 393.81,
+    "symbol": "TSLA"
+  },
+  {
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Broadcom",
+    "price": 238.22,
+    "symbol": "AVGO"
+  },
+  {
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Costco",
+    "price": 217.74,
+    "symbol": "COST"
+  },
+  {
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Netflix",
+    "price": 283.27,
+    "symbol": "NFLX"
+  },
+  {
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Adobe",
+    "price": 65.28,
+    "symbol": "ADBE"
+  },
+  {
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "PepsiCo",
+    "price": 190.63,
+    "symbol": "PEP"
+  },
+  {
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Advanced Micro Devices",
+    "price": 422.62,
+    "symbol": "AMD"
+  },
+  {
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Intel",
+    "price": 474.5,
+    "symbol": "INTC"
+  },
+  {
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Cisco",
+    "price": 483.27,
+    "symbol": "CSCO"
+  },
+  {
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Comcast",
+    "price": 315.46,
+    "symbol": "CMCSA"
+  },
+  {
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "T-Mobile US",
+    "price": 363.21,
+    "symbol": "TMUS"
+  },
+  {
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Texas Instruments",
+    "price": 250.11,
+    "symbol": "TXN"
+  },
+  {
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Qualcomm",
+    "price": 259.38,
+    "symbol": "QCOM"
+  },
+  {
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Amgen",
+    "price": 482.28,
+    "symbol": "AMGN"
+  },
+  {
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Intuit",
+    "price": 358.08,
+    "symbol": "INTU"
+  },
+  {
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Applied Materials",
+    "price": 262.92,
+    "symbol": "AMAT"
+  },
+  {
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Starbucks",
+    "price": 130.88,
+    "symbol": "SBUX"
+  },
+  {
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Intuitive Surgical",
+    "price": 59.12,
+    "symbol": "ISRG"
+  },
+  {
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Booking Holdings",
+    "price": 467.0,
+    "symbol": "BKNG"
+  },
+  {
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Gilead Sciences",
+    "price": 448.97,
+    "symbol": "GILD"
+  },
+  {
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Analog Devices",
+    "price": 177.76,
+    "symbol": "ADI"
+  },
+  {
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Regeneron Pharmaceuticals",
+    "price": 336.95,
+    "symbol": "REGN"
+  },
+  {
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Micron Technology",
+    "price": 278.45,
+    "symbol": "MU"
+  },
+  {
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Mondelez",
+    "price": 67.87,
+    "symbol": "MDLZ"
+  },
+  {
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "PayPal",
+    "price": 124.76,
+    "symbol": "PYPL"
+  },
+  {
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "ADP",
+    "price": 385.7,
+    "symbol": "ADP"
+  },
+  {
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Vertex Pharmaceuticals",
+    "price": 440.95,
+    "symbol": "VRTX"
+  },
+  {
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Palo Alto Networks",
+    "price": 433.23,
+    "symbol": "PANW"
+  },
+  {
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Synopsys",
+    "price": 281.52,
+    "symbol": "SNPS"
+  },
+  {
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Cadence Design",
+    "price": 123.18,
+    "symbol": "CDNS"
+  },
+  {
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "KLA",
+    "price": 117.14,
+    "symbol": "KLAC"
+  },
+  {
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "MercadoLibre",
+    "price": 335.29,
+    "symbol": "MELI"
+  },
+  {
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Cintas",
+    "price": 351.45,
+    "symbol": "CTAS"
+  },
+  {
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "O'Reilly Automotive",
+    "price": 190.61,
+    "symbol": "ORLY"
+  },
+  {
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Lam Research",
+    "price": 278.85,
+    "symbol": "LRCX"
+  },
+  {
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Marriott",
+    "price": 158.7,
+    "symbol": "MAR"
+  },
+  {
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Charter Communications",
+    "price": 292.3,
+    "symbol": "CHTR"
+  },
+  {
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "CSX",
+    "price": 54.3,
+    "symbol": "CSX"
+  },
+  {
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "American Electric Power",
+    "price": 358.01,
+    "symbol": "AEP"
+  },
+  {
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Electronic Arts",
+    "price": 314.76,
+    "symbol": "EA"
+  },
+  {
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Monster Beverage",
+    "price": 404.59,
+    "symbol": "MNST"
+  },
+  {
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Keurig Dr Pepper",
+    "price": 134.05,
+    "symbol": "KDP"
+  },
+  {
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "NXP Semiconductors",
+    "price": 99.66,
+    "symbol": "NXPI"
+  },
+  {
+    "currency": "$",
+    "market": "Crypto",
+    "name": "Bitcoin",
+    "price": 55625.37,
+    "symbol": "BTC-USD"
+  },
+  {
+    "currency": "$",
+    "market": "Crypto",
+    "name": "Ethereum",
+    "price": 15852.54,
+    "symbol": "ETH-USD"
+  },
+  {
+    "currency": "$",
+    "market": "Crypto",
+    "name": "BNB",
+    "price": 56621.64,
+    "symbol": "BNB-USD"
+  },
+  {
+    "currency": "$",
+    "market": "Crypto",
+    "name": "Solana",
+    "price": 18069.88,
+    "symbol": "SOL-USD"
+  },
+  {
+    "currency": "$",
+    "market": "Crypto",
+    "name": "XRP",
+    "price": 45467.05,
+    "symbol": "XRP-USD"
+  },
+  {
+    "currency": "FX",
+    "market": "Forex",
+    "name": "EUR/USD",
+    "price": 73.4985,
+    "symbol": "EURUSD=X"
+  },
+  {
+    "currency": "FX",
+    "market": "Forex",
+    "name": "GBP/USD",
+    "price": 69.0766,
+    "symbol": "GBPUSD=X"
+  },
+  {
+    "currency": "FX",
+    "market": "Forex",
+    "name": "USD/JPY",
+    "price": 128.4709,
+    "symbol": "USDJPY=X"
+  },
+  {
+    "currency": "FX",
+    "market": "Forex",
+    "name": "USD/CAD",
+    "price": 64.0836,
+    "symbol": "USDCAD=X"
+  },
+  {
+    "currency": "FX",
+    "market": "Forex",
+    "name": "USD/CHF",
+    "price": 75.5336,
+    "symbol": "USDCHF=X"
+  },
+  {
+    "currency": "DH",
+    "market": "Bourse de Casablanca",
+    "name": "Maroc Telecom",
+    "price": null,
+    "symbol": "IAM"
+  },
+  {
+    "currency": "DH",
+    "market": "Bourse de Casablanca",
+    "name": "Attijariwafa Bank",
+    "price": null,
+    "symbol": "ATW"
+  },
+  {
+    "currency": "DH",
+    "market": "Bourse de Casablanca",
+    "name": "BCP",
+    "price": null,
+    "symbol": "BCP"
+  },
+  {
+    "currency": "DH",
+    "market": "Bourse de Casablanca",
+    "name": "Bank of Africa",
+    "price": null,
+    "symbol": "BOA"
+  },
+  {
+    "currency": "DH",
+    "market": "Bourse de Casablanca",
+    "name": "CIH Bank",
+    "price": null,
+    "symbol": "CIH"
+  },
+  {
+    "currency": "DH",
+    "market": "Bourse de Casablanca",
+    "name": "BMCI",
+    "price": null,
+    "symbol": "BMCI"
+  },
+  {
+    "currency": "DH",
+    "market": "Bourse de Casablanca",
+    "name": "Credit du Maroc",
+    "price": null,
+    "symbol": "CDM"
+  },
+  {
+    "currency": "DH",
+    "market": "Bourse de Casablanca",
+    "name": "CFG Bank",
+    "price": null,
+    "symbol": "CFG"
+  },
+  {
+    "currency": "DH",
+    "market": "Bourse de Casablanca",
+    "name": "Addoha",
+    "price": null,
+    "symbol": "ADH"
+  },
+  {
+    "currency": "DH",
+    "market": "Bourse de Casablanca",
+    "name": "R\u00e9sidences Dar Saada",
+    "price": null,
+    "symbol": "RDS"
+  },
+  {
+    "currency": "DH",
+    "market": "Bourse de Casablanca",
+    "name": "Sanlam Maroc",
+    "price": null,
+    "symbol": "MUT"
+  },
+  {
+    "currency": "DH",
+    "market": "Bourse de Casablanca",
+    "name": "CMT",
+    "price": null,
+    "symbol": "CMT"
+  }
+]

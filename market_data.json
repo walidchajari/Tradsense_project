@@ -1,0 +1,71 @@
+{
+  "indices": [],
+  "market_summary": {
+    "volume": "1 827 396 718",
+    "capitalization": "1 028 330 341 789"
+  },
+  "top_gainers": [
+    {
+      "name": "SGTM S.A",
+      "price": "835,90",
+      "diff_mad": "75,90",
+      "diff_percent": "9,99 %"
+    },
+    {
+      "name": "MINIERE TOUISSIT",
+      "price": "1 850,00",
+      "diff_mad": "94,00",
+      "diff_percent": "5,35 %"
+    },
+    {
+      "name": "MUTANDIS SCA",
+      "price": "259,00",
+      "diff_mad": "13,00",
+      "diff_percent": "5,28 %"
+    },
+    {
+      "name": "CMGP GROUP",
+      "price": "368,00",
+      "diff_mad": "18,00",
+      "diff_percent": "5,14 %"
+    },
+    {
+      "name": "SMI",
+      "price": "4 100,00",
+      "diff_mad": "200,00",
+      "diff_percent": "5,13 %"
+    }
+  ],
+  "top_losers": [
+    {
+      "name": "EQDOM",
+      "price": "1 180,00",
+      "diff_mad": "-130,00",
+      "diff_percent": "-9,92 %"
+    },
+    {
+      "name": "LESIEUR CRISTAL",
+      "price": "330,00",
+      "diff_mad": "-28,00",
+      "diff_percent": "-7,82 %"
+    },
+    {
+      "name": "STOKVIS NORD AFRIQUE",
+      "price": "90,30",
+      "diff_mad": "-6,00",
+      "diff_percent": "-6,23 %"
+    },
+    {
+      "name": "IB MAROC.COM",
+      "price": "67,44",
+      "diff_mad": "-3,95",
+      "diff_percent": "-5,53 %"
+    },
+    {
+      "name": "M2M Group",
+      "price": "473,95",
+      "diff_mad": "-15,00",
+      "diff_percent": "-3,07 %"
+    }
+  ]
+}

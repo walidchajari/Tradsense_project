@@ -1,0 +1,275 @@
+[
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Apple",
+    "price": null,
+    "symbol": "AAPL",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Microsoft",
+    "price": null,
+    "symbol": "MSFT",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "NVIDIA",
+    "price": null,
+    "symbol": "NVDA",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Amazon",
+    "price": null,
+    "symbol": "AMZN",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Meta Platforms",
+    "price": null,
+    "symbol": "META",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Alphabet Class A",
+    "price": null,
+    "symbol": "GOOGL",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Alphabet Class C",
+    "price": null,
+    "symbol": "GOOG",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Tesla",
+    "price": null,
+    "symbol": "TSLA",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Broadcom",
+    "price": null,
+    "symbol": "AVGO",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Costco",
+    "price": null,
+    "symbol": "COST",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Netflix",
+    "price": null,
+    "symbol": "NFLX",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Adobe",
+    "price": null,
+    "symbol": "ADBE",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "PepsiCo",
+    "price": null,
+    "symbol": "PEP",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Advanced Micro Devices",
+    "price": null,
+    "symbol": "AMD",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Intel",
+    "price": null,
+    "symbol": "INTC",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Cisco",
+    "price": null,
+    "symbol": "CSCO",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Comcast",
+    "price": null,
+    "symbol": "CMCSA",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "T-Mobile US",
+    "price": null,
+    "symbol": "TMUS",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Texas Instruments",
+    "price": null,
+    "symbol": "TXN",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Qualcomm",
+    "price": null,
+    "symbol": "QCOM",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Amgen",
+    "price": null,
+    "symbol": "AMGN",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Intuit",
+    "price": null,
+    "symbol": "INTU",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Applied Materials",
+    "price": null,
+    "symbol": "AMAT",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Starbucks",
+    "price": null,
+    "symbol": "SBUX",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Intuitive Surgical",
+    "price": null,
+    "symbol": "ISRG",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Booking Holdings",
+    "price": null,
+    "symbol": "BKNG",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Gilead Sciences",
+    "price": null,
+    "symbol": "GILD",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Analog Devices",
+    "price": null,
+    "symbol": "ADI",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Regeneron Pharmaceuticals",
+    "price": null,
+    "symbol": "REGN",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "market": "Nasdaq",
+    "name": "Micron Technology",
+    "price": null,
+    "symbol": "MU",
+    "volume": null
+  },
+  {
+    "change_pct": null,
+    "currency": "$",
+    "m

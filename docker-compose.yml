@@ -1,0 +1,71 @@
+version: '3.8'
+
+# This docker-compose file is intended for DEVELOPMENT.
+# For production, you should build the frontend using Dockerfile.frontend
+# and serve the static files with Nginx.
+
+volumes:
+  postgres_data:
+
+services:
+  redis:
+    image: "redis:alpine"
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: tradesense
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: tradesense
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432" # Expose postgres port for local inspection
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./backend:/app
+    command: uvicorn main:app --host 0.0.0.0 --port 8001 --reload
+    environment:
+      - DATABASE_URL=postgresql://tradesense:password@db:5432/tradesense
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      - db
+      - redis
+
+  celery_worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: celery -A celery_worker.celery worker --loglevel=info
+    volumes:
+      - ./backend:/app
+    environment:
+      - DATABASE_URL=postgresql://tradesense:password@db:5432/tradesense
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      - db
+      - redis
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.frontend.dev
+    ports:
+      - "5173:5173" # Expose Vite's default port
+    volumes:
+      # Mount src, public and config files to enable hot-reloading
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+      - ./frontend/vite.config.ts:/app/vite.config.ts
+      - ./frontend/tailwind.config.ts:/app/tailwind.config.ts
+      - ./frontend/postcss.config.js:/app/postcss.config.js
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8001/api
