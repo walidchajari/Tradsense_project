@@ -81,9 +81,11 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         <div className="h-16 flex items-center justify-between px-4 border-b border-sidebar-border">
           {sidebarOpen && (
           <Link to="/dashboard" className="flex items-center gap-2">
-              <div className="w-9 h-9 rounded-2xl bg-[image:var(--gradient-primary)] flex items-center justify-center shadow-lg shadow-primary/30 overflow-hidden">
-                <img src="/icone.png" alt="TradeSense" className="w-full h-full object-cover" />
-              </div>
+              <img
+                src="/brand-icon.svg"
+                alt="TradeSense"
+                className="h-9 w-9 rounded-2xl shadow-lg shadow-primary/30"
+              />
               <span className="text-lg font-bold">TradeSense</span>
             </Link>
           )}
@@ -157,9 +159,11 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       {/* Mobile Header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-background/85 backdrop-blur-2xl border-b border-border z-50 flex items-center justify-between px-4">
         <Link to="/dashboard" className="flex items-center gap-2">
-          <div className="w-9 h-9 rounded-2xl bg-[image:var(--gradient-primary)] flex items-center justify-center shadow-lg shadow-primary/30 overflow-hidden">
-            <img src="/icone.png" alt="TradeSense" className="w-full h-full object-cover" />
-          </div>
+          <img
+            src="/brand-icon.svg"
+            alt="TradeSense"
+            className="h-9 w-9 rounded-2xl shadow-lg shadow-primary/30"
+          />
           <span className="text-lg font-bold">TradeSense</span>
         </Link>
         <button

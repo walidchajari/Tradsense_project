@@ -20,6 +20,39 @@ import { getCurrentUserId } from '@/lib/auth';
 import { useToast } from '@/hooks/use-toast';
 
 const ONBOARDING_KEY = 'tradesense.dashboard.onboarding.dismissed';
+const TICKER_TAPE_CONFIG = {
+  symbols: [
+    { proName: 'NASDAQ:AAPL', title: 'Apple' },
+    { proName: 'NASDAQ:MSFT', title: 'Microsoft' },
+    { proName: 'NASDAQ:TSLA', title: 'Tesla' },
+    { proName: 'NASDAQ:NVDA', title: 'Nvidia' },
+    { proName: 'NASDAQ:AMZN', title: 'Amazon' },
+    { proName: 'NASDAQ:GOOGL', title: 'Alphabet' },
+    { proName: 'NASDAQ:META', title: 'Meta' },
+    { proName: 'NASDAQ:NFLX', title: 'Netflix' },
+    { proName: 'NYSE:JPM', title: 'JPMorgan' },
+    { proName: 'NYSE:BAC', title: 'Bank of America' },
+    { proName: 'NYSE:V', title: 'Visa' },
+    { proName: 'NYSE:MA', title: 'Mastercard' },
+    { proName: 'NYSE:XOM', title: 'Exxon Mobil' },
+    { proName: 'NYSE:NKE', title: 'Nike' },
+    { proName: 'NYSE:DIS', title: 'Disney' },
+    { proName: 'NYSE:KO', title: 'Coca-Cola' },
+    { proName: 'NASDAQ:PEP', title: 'PepsiCo' },
+    { proName: 'NYSE:ORCL', title: 'Oracle' },
+    { proName: 'NASDAQ:AMD', title: 'AMD' },
+    { proName: 'NASDAQ:INTC', title: 'Intel' },
+    { proName: 'BVC:IAM', title: 'Maroc Telecom' },
+    { proName: 'BVC:ATW', title: 'Attijariwafa Bank' },
+    { proName: 'BVC:BOA', title: 'Bank of Africa' },
+    { proName: 'BVC:ADH', title: 'Addoha' },
+  ],
+  showSymbolLogo: true,
+  isTransparent: true,
+  displayMode: 'adaptive',
+  colorTheme: 'dark',
+  locale: 'en',
+};
 
 type OnboardingStep = {
   id: string;
@@ -81,6 +114,7 @@ const Dashboard = () => {
   const [showTour, setShowTour] = useState(false);
   const [tourStep, setTourStep] = useState(0);
   const [sessionStatus, setSessionStatus] = useState<'idle' | 'ok' | 'error'>('idle');
+  const tickerContainerRef = useRef<HTMLDivElement | null>(null);
   const signalToastRef = useRef<string>('');
   const sessionSuccessTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { data: accountData, isLoading: accountLoading } = useAccountStatsQuery(userId);
@@ -336,6 +370,22 @@ const Dashboard = () => {
   }, []);
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!tickerContainerRef.current) return;
+    tickerContainerRef.current.innerHTML = '';
+    const script = document.createElement('script');
+    script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js';
+    script.async = true;
+    script.innerHTML = JSON.stringify(TICKER_TAPE_CONFIG);
+    tickerContainerRef.current.appendChild(script);
+    return () => {
+      if (tickerContainerRef.current) {
+        tickerContainerRef.current.innerHTML = '';
+      }
+    };
+  }, []);
+
+  useEffect(() => {
     if (!isFunded || !signals.length) return;
     const latestSignal = signals[0];
     const key = `${latestSignal.symbol}-${latestSignal.side}-${latestSignal.confidence}-${latestSignal.reason || ''}`;
@@ -411,6 +461,12 @@ const Dashboard = () => {
               {t('dashboard_start_trading')}
             </Link>
           </Button>
+        </div>
+
+        <div className="ticker-line w-full overflow-hidden rounded-2xl border border-border/60 bg-[#0b0f14]">
+          <div className="tradingview-widget-container" ref={tickerContainerRef}>
+            <div className="tradingview-widget-container__widget" />
+          </div>
         </div>
 
         {/* Hero pulse */}

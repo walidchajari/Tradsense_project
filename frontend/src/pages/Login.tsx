@@ -4,11 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { TrendingUp, Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { GoogleLogin } from '@react-oauth/google';
+import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { loginUser } from '@/lib/api';
+import { API_BASE_URL, loginUser } from '@/lib/api';
 
-const GOOGLE_OAUTH_URL = 'https://tradsense-project.onrender.com/auth/google';
+const GOOGLE_AUTH_ENDPOINT = `${API_BASE_URL}/auth/google`;
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -18,9 +19,52 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
-  const redirectToGoogle = () => {
-    if (typeof window === 'undefined') return;
-    window.location.href = GOOGLE_OAUTH_URL;
+  const handleGoogleSuccess = async (credentialResponse: { credential?: string | null }) => {
+    if (!credentialResponse.credential) {
+      toast({
+        title: 'Google Login Failed',
+        description: 'Missing Google credentials. Please try again.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await fetch(GOOGLE_AUTH_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          token: credentialResponse.credential,
+          id_token: credentialResponse.credential,
+        }),
+      });
+      if (!response.ok) {
+        throw new Error('Google authentication failed');
+      }
+      const data = await response.json();
+      const isAdmin = Boolean(data.is_admin);
+      localStorage.setItem('auth_token', data.access_token);
+      localStorage.setItem('auth_user_id', String(data.user_id));
+      localStorage.setItem('auth_email', data.email);
+      localStorage.setItem('auth_username', data.username);
+      localStorage.setItem('auth_is_admin', String(isAdmin));
+      toast({
+        title: 'Welcome back!',
+        description: isAdmin
+          ? 'Login successful. Redirecting to admin...'
+          : 'Login successful. Redirecting to dashboard...',
+      });
+      setTimeout(() => navigate(isAdmin ? '/admin' : '/dashboard'), 500);
+    } catch (error) {
+      toast({
+        title: 'Google Login Failed',
+        description: 'Unable to sign in with Google. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -59,9 +103,11 @@ const Login = () => {
         <div className="w-full max-w-md">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 mb-8">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-emerald-400 flex items-center justify-center">
-              <TrendingUp className="w-5 h-5 text-white" />
-            </div>
+            <img
+              src="/brand-icon.svg"
+              alt="TradeSense"
+              className="h-10 w-10 rounded-xl shadow-lg shadow-primary/20"
+            />
             <span className="text-xl font-bold">
               Trade<span className="gradient-text">Sense</span>
             </span>
@@ -146,15 +192,16 @@ const Login = () => {
 
           {/* Google Sign In */}
           <div className="w-full mb-3">
-            <Button
-              type="button"
-              variant="outline"
-              size="lg"
-              className="w-full"
-              onClick={redirectToGoogle}
-            >
-              Continue with Google
-            </Button>
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={() =>
+                toast({
+                  title: 'Google Login Failed',
+                  description: 'Unable to sign in with Google. Please try again.',
+                  variant: 'destructive',
+                })
+              }
+            />
           </div>
 
           {/* Register Link */}

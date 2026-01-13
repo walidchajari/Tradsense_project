@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu, X, TrendingUp, Sun, Moon } from 'lucide-react';
+import { Menu, X, Sun, Moon } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from 'next-themes';
 
@@ -24,9 +24,11 @@ const Navbar = () => {
           {/* Left: Theme + Language + Logo */}
           <div className="flex items-center gap-3 md:justify-self-start">
             <Link to="/" className="flex items-center gap-2 group">
-              <div className="relative w-10 h-10 rounded-2xl bg-gradient-to-br from-primary to-emerald-400 flex items-center justify-center shadow-lg shadow-primary/30 group-hover:shadow-primary/50 transition-shadow">
-                <TrendingUp className="w-5 h-5 text-white" />
-              </div>
+              <img
+                src="/brand-icon.svg"
+                alt="TradeSense"
+                className="h-10 w-10 rounded-2xl shadow-lg shadow-primary/30 transition-shadow group-hover:shadow-primary/50"
+              />
               <span className="text-lg font-bold tracking-tight">
                 Trade<span className="gradient-text">Sense</span>
               </span>

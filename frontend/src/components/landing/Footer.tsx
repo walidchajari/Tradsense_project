@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { TrendingUp, Twitter, Linkedin, Youtube, MessageCircle } from 'lucide-react';
+import { Twitter, Linkedin, Youtube, MessageCircle } from 'lucide-react';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -39,9 +39,11 @@ const Footer = () => {
           {/* Brand */}
           <div className="lg:col-span-2">
             <Link to="/" className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-emerald-400 flex items-center justify-center">
-                <TrendingUp className="w-5 h-5 text-white" />
-              </div>
+              <img
+                src="/brand-icon.svg"
+                alt="TradeSense"
+                className="h-10 w-10 rounded-xl shadow-lg shadow-primary/20"
+              />
               <span className="text-xl font-bold">
                 Trade<span className="gradient-text">Sense</span>
               </span>

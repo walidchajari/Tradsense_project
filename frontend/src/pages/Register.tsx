@@ -4,11 +4,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { TrendingUp, Mail, Lock, Eye, EyeOff, User, Zap, Crown } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, User, Zap, Crown } from 'lucide-react';
+import { GoogleLogin } from '@react-oauth/google';
 import { useToast } from '@/hooks/use-toast';
-import { registerUser } from '@/lib/api';
-
-const GOOGLE_OAUTH_URL = 'https://tradsense-project.onrender.com/auth/google';
+import { API_BASE_URL, registerUser } from '@/lib/api';
 
 type AccountType = 'trial' | 'paid';
 
@@ -35,11 +34,63 @@ const Register = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
-  const redirectToGoogle = () => {
-    if (typeof window === 'undefined') return;
-    window.location.href = GOOGLE_OAUTH_URL;
+  const handleGoogleSuccess = async (credentialResponse: { credential?: string | null }) => {
+    if (!credentialResponse.credential) {
+      toast({
+        title: 'Google Signup Failed',
+        description: 'Missing Google credentials. Please try again.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsGoogleLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/google`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id_token: credentialResponse.credential,
+          account_type: formData.accountType,
+          plan: formData.plan,
+        }),
+      });
+      if (!response.ok) {
+        throw new Error('Google authentication failed');
+      }
+      const data = await response.json();
+      const isAdmin = Boolean(data.is_admin);
+      localStorage.setItem('auth_token', data.access_token);
+      localStorage.setItem('auth_user_id', String(data.user_id));
+      localStorage.setItem('auth_email', data.email);
+      localStorage.setItem('auth_username', data.username);
+      localStorage.setItem('auth_is_admin', String(isAdmin));
+
+      if (formData.accountType === 'trial') {
+        toast({
+          title: 'Free Trial Started!',
+          description: 'Your $2,000 trial challenge is ready.',
+        });
+        setTimeout(() => navigate('/dashboard?mode=trial'), 500);
+      } else {
+        toast({
+          title: 'Account Created!',
+          description: 'Redirecting to payment...',
+        });
+        setTimeout(() => navigate(`/checkout?plan=${formData.plan}`), 500);
+      }
+    } catch (error) {
+      toast({
+        title: 'Google Signup Failed',
+        description: 'Unable to sign up with Google. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsGoogleLoading(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -136,9 +187,11 @@ const Register = () => {
         <div className="w-full max-w-md py-8">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 mb-8">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-emerald-400 flex items-center justify-center">
-              <TrendingUp className="w-5 h-5 text-white" />
-            </div>
+            <img
+              src="/brand-icon.svg"
+              alt="TradeSense"
+              className="h-10 w-10 rounded-xl shadow-lg shadow-primary/20"
+            />
             <span className="text-xl font-bold">
               Trade<span className="gradient-text">Sense</span>
             </span>
@@ -184,15 +237,22 @@ const Register = () => {
 
           {/* Google Sign Up */}
           <div className="w-full mb-6">
-            <Button
-              type="button"
-              variant="outline"
-              size="lg"
-              className="w-full"
-              onClick={redirectToGoogle}
-            >
-              Continue with Google
-            </Button>
+            <div className="w-full">
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={() =>
+                  toast({
+                    title: 'Google Signup Failed',
+                    description: 'Unable to sign up with Google. Please try again.',
+                    variant: 'destructive',
+                  })
+                }
+                useOneTap={false}
+              />
+              {isGoogleLoading && (
+                <p className="mt-2 text-xs text-muted-foreground">Signing up with Google...</p>
+              )}
+            </div>
           </div>
 
           {/* Form */}

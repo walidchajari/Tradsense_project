@@ -50,12 +50,36 @@ class AuthResponse(BaseModel):
     is_admin: bool
 
 
+def _read_env_file_ids() -> list[str]:
+    env_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".env"))
+    if not os.path.exists(env_path):
+        return []
+    ids: list[str] = []
+    try:
+        with open(env_path, "r", encoding="utf-8") as handle:
+            for raw_line in handle:
+                line = raw_line.strip()
+                if not line or line.startswith("#") or "=" not in line:
+                    continue
+                key, value = line.split("=", 1)
+                key = key.strip()
+                value = value.strip().strip('"').strip("'")
+                if key == "GOOGLE_CLIENT_IDS":
+                    ids.extend([item.strip() for item in value.split(",") if item.strip()])
+                if key == "GOOGLE_CLIENT_ID" and value.strip():
+                    ids.append(value.strip())
+    except Exception:
+        return []
+    return ids
+
+
 def _get_google_client_ids() -> list[str]:
     raw_ids = os.environ.get("GOOGLE_CLIENT_IDS", "")
     ids = [item.strip() for item in raw_ids.split(",") if item.strip()]
     single = os.environ.get("GOOGLE_CLIENT_ID")
     if single:
         ids.append(single.strip())
+    ids.extend(_read_env_file_ids())
     if not ids:
         ids = [
             "132353474250-lb2mb6ecm3k0ot4voi7j7366arbdnj81.apps.googleusercontent.com",
