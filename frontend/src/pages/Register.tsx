@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,7 +6,9 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { TrendingUp, Mail, Lock, Eye, EyeOff, User, Zap, Crown } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { registerUser, loginWithGoogle } from '@/lib/api';
+import { registerUser } from '@/lib/api';
+
+const GOOGLE_OAUTH_URL = 'https://tradsense-project.onrender.com/auth/google';
 
 type AccountType = 'trial' | 'paid';
 
@@ -33,12 +35,12 @@ const Register = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  const googleButtonRef = useRef<HTMLDivElement | null>(null);
-  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID
-    || '132353474250-lb2mb6ecm3k0ot4voi7j7366arbdnj81.apps.googleusercontent.com';
   const navigate = useNavigate();
   const { toast } = useToast();
+  const redirectToGoogle = () => {
+    if (typeof window === 'undefined') return;
+    window.location.href = GOOGLE_OAUTH_URL;
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -105,79 +107,6 @@ const Register = () => {
       setIsLoading(false);
     }
   };
-
-  useEffect(() => {
-    let intervalId: number | null = null;
-    const renderButton = () => {
-      if (!googleButtonRef.current || !window.google?.accounts?.id) return;
-      googleButtonRef.current.innerHTML = '';
-      window.google.accounts.id.initialize({
-        client_id: googleClientId,
-        callback: async (response) => {
-          setIsGoogleLoading(true);
-          try {
-            const data = await loginWithGoogle({
-              id_token: response.credential,
-              account_type: formData.accountType,
-              plan: formData.plan,
-            });
-            const isAdmin = Boolean(data.is_admin);
-            localStorage.setItem('auth_token', data.access_token);
-            localStorage.setItem('auth_user_id', String(data.user_id));
-            localStorage.setItem('auth_email', data.email);
-            localStorage.setItem('auth_username', data.username);
-            localStorage.setItem('auth_is_admin', String(isAdmin));
-
-            if (formData.accountType === 'trial') {
-              toast({
-                title: 'Free Trial Started!',
-                description: 'Your $2,000 trial challenge is ready.',
-              });
-              setTimeout(() => navigate('/dashboard?mode=trial'), 500);
-            } else {
-              toast({
-                title: 'Account Created!',
-                description: 'Redirecting to payment...',
-              });
-              setTimeout(() => navigate(`/checkout?plan=${formData.plan}`), 500);
-            }
-          } catch (error) {
-            toast({
-              title: 'Google sign-in failed',
-              description: error instanceof Error ? error.message : 'Unable to sign in with Google.',
-              variant: 'destructive',
-            });
-          } finally {
-            setIsGoogleLoading(false);
-          }
-        },
-        ux_mode: 'popup',
-      });
-      window.google.accounts.id.renderButton(googleButtonRef.current, {
-        theme: 'outline',
-        size: 'large',
-        shape: 'pill',
-        text: 'signup_with',
-        width: '360',
-        logo_alignment: 'left',
-      });
-    };
-
-    if (window.google?.accounts?.id) {
-      renderButton();
-    } else {
-      intervalId = window.setInterval(() => {
-        if (window.google?.accounts?.id) {
-          renderButton();
-          if (intervalId) window.clearInterval(intervalId);
-        }
-      }, 300);
-    }
-
-    return () => {
-      if (intervalId) window.clearInterval(intervalId);
-    };
-  }, [formData.accountType, formData.plan, googleClientId, navigate, toast]);
 
   const accountTypes = [
     {
@@ -255,9 +184,15 @@ const Register = () => {
 
           {/* Google Sign Up */}
           <div className="w-full mb-6">
-            <div className="flex justify-center">
-              <div ref={googleButtonRef} className={isGoogleLoading ? 'pointer-events-none opacity-70' : ''} />
-            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="lg"
+              className="w-full"
+              onClick={redirectToGoogle}
+            >
+              Sign up with Google
+            </Button>
           </div>
 
           {/* Form */}

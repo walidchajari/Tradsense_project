@@ -306,7 +306,3 @@ export const loginUser = (payload: { email: string; password: string }) => {
 export const requestWithdrawal = (payload: { account_id: number; amount: number }) => {
     return postToApi('/withdrawals/request', payload);
 };
-
-export const loginWithGoogle = (payload: { id_token: string; account_type?: string; plan?: string }) => {
-    return postToApi('/auth/google', payload);
-};

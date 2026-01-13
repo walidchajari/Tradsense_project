@@ -69,6 +69,11 @@ def require_user(
     return user
 
 
+@router.get("/auth/keep-alive")
+def keep_alive(user: models.User = Depends(require_user)) -> Dict[str, Any]:
+    return {"status": "ok", "user_id": user.id, "email": user.email}
+
+
 def _parse_date(value: Optional[str]) -> Optional[datetime]:
     if not value:
         return None

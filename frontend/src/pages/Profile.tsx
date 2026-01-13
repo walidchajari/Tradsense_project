@@ -65,7 +65,9 @@ const Profile = () => {
   useEffect(() => {
     const loadProfile = async () => {
       try {
-        const res = await fetch(`${API_BASE_URL}/profile/${userId}`);
+        const res = await fetch(`${API_BASE_URL}/profile/${userId}`, {
+          headers: getAuthHeaders(),
+        });
         const data = await res.json();
         if (!res.ok) {
           throw new Error(data.detail || 'Failed to load profile');
