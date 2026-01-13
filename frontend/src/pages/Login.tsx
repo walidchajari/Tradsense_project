@@ -8,6 +8,8 @@ import { TrendingUp, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { loginUser } from '@/lib/api';
 
+const GOOGLE_OAUTH_URL = 'https://tradsense-project.onrender.com/auth/google';
+
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -16,6 +18,10 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const redirectToGoogle = () => {
+    if (typeof window === 'undefined') return;
+    window.location.href = GOOGLE_OAUTH_URL;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -132,7 +138,24 @@ const Login = () => {
           </form>
 
           {/* Divider */}
-          <div className="h-6" />
+          <div className="flex items-center gap-4 my-6">
+            <div className="flex-1 h-px bg-border" />
+            <span className="text-sm text-muted-foreground">or</span>
+            <div className="flex-1 h-px bg-border" />
+          </div>
+
+          {/* Google Sign In */}
+          <div className="w-full mb-3">
+            <Button
+              type="button"
+              variant="outline"
+              size="lg"
+              className="w-full"
+              onClick={redirectToGoogle}
+            >
+              Continue with Google
+            </Button>
+          </div>
 
           {/* Register Link */}
           <p className="text-center text-muted-foreground">

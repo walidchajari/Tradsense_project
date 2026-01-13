@@ -57,7 +57,10 @@ def _get_google_client_ids() -> list[str]:
     if single:
         ids.append(single.strip())
     if not ids:
-        ids = ["132353474250-lb2mb6ecm3k0ot4voi7j7366arbdnj81.apps.googleusercontent.com"]
+        ids = [
+            "132353474250-lb2mb6ecm3k0ot4voi7j7366arbdnj81.apps.googleusercontent.com",
+            "132353474250-bd8ukm2jei3mns3278ti7gak0tooednd.apps.googleusercontent.com",
+        ]
     return list(dict.fromkeys(ids))
 
 
