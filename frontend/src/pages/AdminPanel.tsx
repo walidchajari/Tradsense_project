@@ -531,6 +531,19 @@ const AdminPanel = () => {
     { label: t('admin_failed'), value: accounts.filter(a => a.status === 'failed').length.toString(), icon: XCircle, color: 'from-destructive to-orange-400' },
   ];
 
+  const statusBadgeClass = (status: string) => {
+    switch (status) {
+      case 'funded':
+        return 'bg-success/20 text-success';
+      case 'active':
+        return 'bg-primary/20 text-primary';
+      case 'failed':
+        return 'bg-destructive/20 text-destructive';
+      default:
+        return 'bg-muted/20 text-muted-foreground';
+    }
+  };
+
   const computedProfitTotal = accounts.reduce((sum, acc) => {
     const equity = Number(acc.equity ?? 0);
     const initial = Number(acc.initial_balance ?? 0);
@@ -1316,288 +1329,265 @@ const AdminPanel = () => {
         ) : null}
 
         {showUsers ? (
-          <div className="grid grid-cols-1 xl:grid-cols-[minmax(420px,1.4fr)_minmax(320px,1fr)] gap-6">
-            <div className="surface-card">
-              <div className="p-6 border-b border-border">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <h2 className="text-lg font-semibold">{t('admin_account_management')}</h2>
-                  <div className="relative">
+          <div className="space-y-6">
+            <div className="surface-card rounded-[32px] border border-border bg-slate-900/60 p-6">
+              <div className="flex flex-col gap-2">
+                <div className="text-xs uppercase tracking-[0.4em] text-muted-foreground">Admin Control Center</div>
+                <h2 className="text-2xl font-semibold">Account Management</h2>
+                <p className="text-sm text-muted-foreground max-w-3xl">
+                  Manage real-time challenges and keep user statuses synchronized with the prop firm rules.
+                </p>
+              </div>
+            </div>
+            <div className="grid gap-6">
+              <section className="surface-card rounded-[32px] border border-border bg-slate-900/60 p-6">
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                  <div>
+                    <div className="text-xs uppercase tracking-[0.4em] text-muted-foreground">Accounts</div>
+                    <h3 className="text-xl font-semibold">All Challengers</h3>
+                  </div>
+                  <div className="relative w-full max-w-xs">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input
-                    placeholder={t('admin_search_accounts')}
+                      placeholder={t('admin_search_accounts')}
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10 w-full sm:w-64 bg-secondary border-border"
+                      className="pl-10 h-10 rounded-2xl bg-secondary/60 border border-border text-xs"
                     />
                   </div>
                 </div>
-              </div>
-
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-secondary/50">
-                    <tr>
-                      <th className="text-left py-4 px-6 text-sm font-medium text-muted-foreground">{t('admin_user')}</th>
-                      <th className="text-left py-4 px-6 text-sm font-medium text-muted-foreground">{t('admin_challenge')}</th>
-                      <th className="text-left py-4 px-6 text-sm font-medium text-muted-foreground">{t('admin_balance')}</th>
-                      <th className="text-left py-4 px-6 text-sm font-medium text-muted-foreground">{t('admin_status')}</th>
-                      <th className="text-right py-4 px-6 text-sm font-medium text-muted-foreground">{t('admin_actions')}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredAccounts.map((acc) => {
+                <div className="mt-5 border-t border-border pt-5 space-y-3 max-h-[420px] overflow-auto">
+                  {filteredAccounts.length ? (
+                    filteredAccounts.map((acc) => {
                       const isSelected = selectedAccountId === acc.id;
+                      const balance = Number(acc.balance ?? 0).toLocaleString('en-US', { maximumFractionDigits: 0 });
                       return (
-                        <tr
+                        <button
                           key={acc.id}
-                          className={`border-t border-border hover:bg-secondary/30 transition-colors ${isSelected ? 'bg-primary/10' : ''}`}
+                          onClick={() => fetchAccountDetails(acc.id)}
+                          className={`w-full rounded-2xl border px-4 py-4 text-left transition ${
+                            isSelected
+                              ? 'border-primary/60 bg-primary/10'
+                              : 'border-border bg-secondary/20 hover:border-primary/40'
+                          }`}
                         >
-                          <td className="py-4 px-6">
-                            <button
-                              onClick={() => fetchAccountDetails(acc.id)}
-                              className="text-left"
-                            >
-                              <div className="font-medium">{acc.user_name}</div>
-                              <div className="text-xs text-muted-foreground">{acc.user_email || '—'}</div>
-                            </button>
-                          </td>
-                          <td className="py-4 px-6">
-                            <span className="px-2 py-1 rounded text-xs font-medium bg-secondary border border-border">
-                              {acc.challenge_type}
-                            </span>
-                          </td>
-                          <td className="py-4 px-6 trading-number font-bold text-success">${acc.balance.toLocaleString()}</td>
-                          <td className="py-4 px-6">
-                            <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${acc.status === 'active' ? 'bg-primary/20 text-primary' :
-                                acc.status === 'funded' ? 'bg-success/20 text-success' :
-                                  'bg-destructive/20 text-destructive'
-                              }`}>
-                              {acc.status}
-                            </span>
-                          </td>
-                          <td className="py-4 px-6 text-right">
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon">
-                                  <MoreVertical className="w-4 h-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end" className="surface-card border-border">
-                                <DropdownMenuItem className="text-success focus:text-success" onClick={() => handleStatusChange(acc.id, 'Funded')}>
-                                  <CheckCircle className="w-4 h-4 mr-2" />
-                                  {t('admin_fund_user')}
-                                </DropdownMenuItem>
-                                <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => handleStatusChange(acc.id, 'Failed')}>
-                                  <XCircle className="w-4 h-4 mr-2" />
-                                  {t('admin_fail_user')}
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => handleStatusChange(acc.id, 'Active')}>
-                                  <Activity className="w-4 h-4 mr-2" />
-                                  {t('admin_reset_active')}
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <div className="surface-card p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold">{t('admin_user_details')}</h2>
-                {detailsLoading ? (
-                  <span className="text-xs text-muted-foreground">{t('admin_loading')}</span>
-                ) : null}
-              </div>
-
-              {!selectedDetails ? (
-                <div className="text-sm text-muted-foreground">
-                  {t('admin_select_account')}
-                </div>
-              ) : (
-                <div className="space-y-6">
-                  <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-xl overflow-hidden bg-secondary flex items-center justify-center">
-                      {selectedDetails.profile?.avatar_data ? (
-                        <img src={selectedDetails.profile.avatar_data} alt="Avatar" className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="text-xl font-bold text-muted-foreground">
-                          {(selectedDetails.user?.username || 'U')[0]}
-                        </div>
-                      )}
-                    </div>
-                    <div>
-                      <div className="text-lg font-semibold">{selectedDetails.profile?.full_name || selectedDetails.user?.username}</div>
-                      <div className="text-xs text-muted-foreground">{selectedDetails.user?.email || '—'}</div>
-                      <div className="text-xs text-muted-foreground">{selectedDetails.profile?.country || '—'}</div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    <div className="rounded-lg border border-border p-4">
-                      <div className="text-xs text-muted-foreground mb-3">{t('admin_user_profile')}</div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <div>
-                          <Label>{t('admin_user_name')}</Label>
-                          <Input
-                            value={editUser.username}
-                            onChange={(e) => setEditUser((prev) => ({ ...prev, username: e.target.value }))}
-                            className="mt-1 bg-secondary border-border"
-                          />
-                        </div>
-                        <div>
-                          <Label>{t('admin_user_email')}</Label>
-                          <Input
-                            value={editUser.email}
-                            onChange={(e) => setEditUser((prev) => ({ ...prev, email: e.target.value }))}
-                            className="mt-1 bg-secondary border-border"
-                          />
-                        </div>
-                      </div>
-                      <Button size="sm" className="mt-3" onClick={saveUserUpdates}>
-                        {t('admin_save_user')}
-                      </Button>
-                    </div>
-
-                    <div className="rounded-lg border border-border p-4">
-                      <div className="text-xs text-muted-foreground mb-3">{t('admin_account_settings')}</div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <div>
-                          <Label>{t('admin_status')}</Label>
-                          <select
-                            value={editAccount.status}
-                            onChange={(e) => setEditAccount((prev) => ({ ...prev, status: e.target.value }))}
-                            className="mt-1 w-full rounded-md bg-secondary border border-border px-3 py-2 text-sm"
-                          >
-                            <option value="active">active</option>
-                            <option value="funded">funded</option>
-                            <option value="failed">failed</option>
-                          </select>
-                        </div>
-                        <div>
-                          <Label>{t('admin_challenge')}</Label>
-                          <select
-                            value={editAccount.challenge_type}
-                            onChange={(e) => setEditAccount((prev) => ({ ...prev, challenge_type: e.target.value }))}
-                            className="mt-1 w-full rounded-md bg-secondary border border-border px-3 py-2 text-sm"
-                          >
-                            <option value="demo">demo</option>
-                            <option value="starter">starter</option>
-                            <option value="pro">pro</option>
-                            <option value="elite">elite</option>
-                          </select>
-                        </div>
-                        <div>
-                          <Label>{t('admin_balance')}</Label>
-                          <Input
-                            value={editAccount.balance}
-                            onChange={(e) => setEditAccount((prev) => ({ ...prev, balance: e.target.value }))}
-                            className="mt-1 bg-secondary border-border"
-                          />
-                        </div>
-                        <div>
-                          <Label>{t('admin_equity')}</Label>
-                          <Input
-                            value={editAccount.equity}
-                            onChange={(e) => setEditAccount((prev) => ({ ...prev, equity: e.target.value }))}
-                            className="mt-1 bg-secondary border-border"
-                          />
-                        </div>
-                        <div>
-                          <Label>{t('admin_initial_balance')}</Label>
-                          <Input
-                            value={editAccount.initial_balance}
-                            onChange={(e) => setEditAccount((prev) => ({ ...prev, initial_balance: e.target.value }))}
-                            className="mt-1 bg-secondary border-border"
-                          />
-                        </div>
-                        <div>
-                          <Label>{t('admin_daily_starting_equity')}</Label>
-                          <Input
-                            value={editAccount.daily_starting_equity}
-                            onChange={(e) => setEditAccount((prev) => ({ ...prev, daily_starting_equity: e.target.value }))}
-                            className="mt-1 bg-secondary border-border"
-                          />
-                        </div>
-                      </div>
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        <Button size="sm" onClick={saveAccountUpdates}>{t('admin_save_account')}</Button>
-                        <Button size="sm" variant="success" onClick={() => handleStatusChange(selectedDetails.account.id, 'Funded')}>
-                          {t('admin_fund')}
-                        </Button>
-                        <Button size="sm" variant="destructive" onClick={() => handleStatusChange(selectedDetails.account.id, 'Failed')}>
-                          {t('admin_fail')}
-                        </Button>
-                        <Button size="sm" variant="outline" onClick={() => handleStatusChange(selectedDetails.account.id, 'Active')}>
-                          {t('admin_reset')}
-                        </Button>
-                      </div>
-                    </div>
-
-                    <div className="rounded-lg border border-border p-4">
-                      <div className="text-xs text-muted-foreground mb-3">{t('admin_security')}</div>
-                      <div className="flex flex-col gap-2">
-                        <Label>{t('admin_new_password')}</Label>
-                        <Input
-                          type="password"
-                          value={resetPassword}
-                          onChange={(e) => setResetPassword(e.target.value)}
-                          className="bg-secondary border-border"
-                          placeholder="••••••••"
-                        />
-                        <div className="flex flex-wrap gap-2">
-                          <Button size="sm" variant="outline" onClick={resetUserPassword}>
-                            {t('admin_reset_password')}
-                          </Button>
-                          <Button size="sm" variant="destructive" onClick={deleteAccount}>
-                            {t('admin_delete_account')}
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="text-xs text-muted-foreground mb-2">{t('admin_open_positions')}</div>
-                    {selectedDetails.positions?.length ? (
-                      <div className="space-y-2">
-                        {selectedDetails.positions.map((pos: any, index: number) => (
-                          <div key={index} className="flex items-center justify-between text-sm bg-secondary/40 border border-border rounded-lg px-3 py-2">
-                            <div className="font-medium">{pos.asset}</div>
-                            <div className="text-muted-foreground">{t('admin_qty')} {pos.quantity}</div>
-                            <div className="text-muted-foreground">{t('admin_avg')} {pos.avg_entry_price}</div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="text-sm text-muted-foreground">{t('admin_no_positions')}</div>
-                    )}
-                  </div>
-
-                  <div>
-                    <div className="text-xs text-muted-foreground mb-2">{t('admin_recent_trades')}</div>
-                    {selectedDetails.trades?.length ? (
-                      <div className="space-y-2">
-                        {selectedDetails.trades.map((trade: any) => (
-                          <div key={trade.id} className="flex items-center justify-between text-sm bg-secondary/40 border border-border rounded-lg px-3 py-2">
-                            <div className="font-medium">{trade.asset}</div>
-                            <div className="text-muted-foreground">{trade.type.toUpperCase()}</div>
-                            <div className={`font-semibold ${trade.profit >= 0 ? 'text-success' : 'text-destructive'}`}>
-                              {trade.profit >= 0 ? '+' : ''}{trade.profit}
+                          <div className="flex items-center justify-between gap-4">
+                            <div className="flex-1">
+                              <div className="text-base font-semibold">{acc.user_name}</div>
+                              <div className="flex flex-wrap gap-2 text-[11px] text-muted-foreground">
+                                <span>{acc.user_email || '—'}</span>
+                                <span className="px-2 py-1 rounded-full border border-border text-[10px] uppercase">
+                                  {acc.challenge_type || 'N/A'}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="text-right space-y-1">
+                              <div className="text-sm font-semibold text-success">${balance}</div>
+                              <span className={`inline-flex px-2 py-0.5 text-[10px] font-bold uppercase rounded-full ${statusBadgeClass(acc.status)}`}>
+                                {acc.status}
+                              </span>
                             </div>
                           </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="text-sm text-muted-foreground">{t('admin_no_trades')}</div>
-                    )}
-                  </div>
+                        </button>
+                      );
+                    })
+                  ) : (
+                    <div className="text-sm text-muted-foreground">{t('admin_no_accounts')}</div>
+                  )}
                 </div>
-              )}
+              </section>
+              <section className="surface-card rounded-[32px] border border-border bg-slate-900/60 p-6 space-y-6">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <div className="text-xs uppercase tracking-[0.4em] text-muted-foreground">User Details</div>
+                    <h3 className="text-lg font-semibold">{selectedDetails?.user?.username || t('admin_select_account')}</h3>
+                  </div>
+                  {detailsLoading && (
+                    <span className="text-xs text-muted-foreground">{t('admin_loading')}</span>
+                  )}
+                  {selectedDetails?.account?.status && (
+                    <span className={`px-3 py-1 text-xs font-semibold uppercase rounded-full ${statusBadgeClass(selectedDetails.account.status)}`}>
+                      {selectedDetails.account.status}
+                    </span>
+                  )}
+                </div>
+                {!selectedDetails ? (
+                  <p className="text-sm text-muted-foreground">{t('admin_select_account')}</p>
+                ) : (
+                  <>
+                    <div className="flex items-center gap-4">
+                      <div className="w-14 h-14 rounded-2xl bg-secondary/40 flex items-center justify-center text-xl font-semibold text-muted-foreground">
+                        {(selectedDetails.user?.username || 'U')[0]?.toUpperCase()}
+                      </div>
+                      <div className="space-y-1">
+                        <div className="text-base font-semibold">{selectedDetails.profile?.full_name || selectedDetails.user?.username}</div>
+                        <div className="text-xs text-muted-foreground">{selectedDetails.user?.email}</div>
+                        <div className="text-xs text-muted-foreground">{selectedDetails.profile?.country || '—'}</div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      <div className="rounded-2xl border border-border bg-background/40 p-4 space-y-3">
+                        <div className="text-xs uppercase tracking-[0.35em] text-muted-foreground">{t('admin_user_profile')}</div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <div>
+                            <Label>{t('admin_user_name')}</Label>
+                            <Input
+                              value={editUser.username}
+                              onChange={(e) => setEditUser((prev) => ({ ...prev, username: e.target.value }))}
+                              className="mt-1 bg-secondary border-border"
+                            />
+                          </div>
+                          <div>
+                            <Label>{t('admin_user_email')}</Label>
+                            <Input
+                              value={editUser.email}
+                              onChange={(e) => setEditUser((prev) => ({ ...prev, email: e.target.value }))}
+                              className="mt-1 bg-secondary border-border"
+                            />
+                          </div>
+                        </div>
+                        <Button size="sm" className="mt-2" onClick={saveUserUpdates}>
+                          {t('admin_save_user')}
+                        </Button>
+                      </div>
+
+                      <div className="rounded-2xl border border-border bg-background/40 p-4 space-y-3">
+                        <div className="text-xs uppercase tracking-[0.35em] text-muted-foreground">{t('admin_account_settings')}</div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <div>
+                            <Label>{t('admin_status')}</Label>
+                            <select
+                              value={editAccount.status}
+                              onChange={(e) => setEditAccount((prev) => ({ ...prev, status: e.target.value }))}
+                              className="mt-1 w-full rounded-md bg-secondary border border-border px-3 py-2 text-sm"
+                            >
+                              <option value="active">active</option>
+                              <option value="funded">funded</option>
+                              <option value="failed">failed</option>
+                            </select>
+                          </div>
+                          <div>
+                            <Label>{t('admin_challenge')}</Label>
+                            <select
+                              value={editAccount.challenge_type}
+                              onChange={(e) => setEditAccount((prev) => ({ ...prev, challenge_type: e.target.value }))}
+                              className="mt-1 w-full rounded-md bg-secondary border border-border px-3 py-2 text-sm"
+                            >
+                              <option value="demo">demo</option>
+                              <option value="starter">starter</option>
+                              <option value="pro">pro</option>
+                              <option value="elite">elite</option>
+                            </select>
+                          </div>
+                          <div>
+                            <Label>{t('admin_balance')}</Label>
+                            <Input
+                              value={editAccount.balance}
+                              onChange={(e) => setEditAccount((prev) => ({ ...prev, balance: e.target.value }))}
+                              className="mt-1 bg-secondary border-border"
+                            />
+                          </div>
+                          <div>
+                            <Label>{t('admin_equity')}</Label>
+                            <Input
+                              value={editAccount.equity}
+                              onChange={(e) => setEditAccount((prev) => ({ ...prev, equity: e.target.value }))}
+                              className="mt-1 bg-secondary border-border"
+                            />
+                          </div>
+                          <div>
+                            <Label>{t('admin_initial_balance')}</Label>
+                            <Input
+                              value={editAccount.initial_balance}
+                              onChange={(e) => setEditAccount((prev) => ({ ...prev, initial_balance: e.target.value }))}
+                              className="mt-1 bg-secondary border-border"
+                            />
+                          </div>
+                          <div>
+                            <Label>{t('admin_daily_starting_equity')}</Label>
+                            <Input
+                              value={editAccount.daily_starting_equity}
+                              onChange={(e) => setEditAccount((prev) => ({ ...prev, daily_starting_equity: e.target.value }))}
+                              className="mt-1 bg-secondary border-border"
+                            />
+                          </div>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          <Button size="sm" onClick={saveAccountUpdates}>{t('admin_save_account')}</Button>
+                          <Button size="sm" variant="success" onClick={() => handleStatusChange(selectedDetails.account.id, 'Funded')}>
+                            {t('admin_fund')}
+                          </Button>
+                          <Button size="sm" variant="destructive" onClick={() => handleStatusChange(selectedDetails.account.id, 'Failed')}>
+                            {t('admin_fail')}
+                          </Button>
+                          <Button size="sm" variant="outline" onClick={() => handleStatusChange(selectedDetails.account.id, 'Active')}>
+                            {t('admin_reset')}
+                          </Button>
+                        </div>
+                      </div>
+
+                      <div className="rounded-2xl border border-border bg-background/40 p-4 space-y-3">
+                        <div className="text-xs uppercase tracking-[0.35em] text-muted-foreground">{t('admin_security')}</div>
+                        <div className="flex flex-col gap-2">
+                          <Label>{t('admin_new_password')}</Label>
+                          <Input
+                            type="password"
+                            value={resetPassword}
+                            onChange={(e) => setResetPassword(e.target.value)}
+                            className="bg-secondary border-border"
+                            placeholder="••••••••"
+                          />
+                          <div className="flex flex-wrap gap-2">
+                            <Button size="sm" variant="outline" onClick={resetUserPassword}>
+                              {t('admin_reset_password')}
+                            </Button>
+                            <Button size="sm" variant="destructive" onClick={deleteAccount}>
+                              {t('admin_delete_account')}
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="space-y-3">
+                        <div className="text-xs uppercase tracking-[0.35em] text-muted-foreground">{t('admin_open_positions')}</div>
+                        {selectedDetails.positions?.length ? (
+                          <div className="space-y-2">
+                            {selectedDetails.positions.map((pos: any, index: number) => (
+                              <div key={index} className="flex items-center justify-between text-sm rounded-2xl border border-border bg-secondary/40 px-3 py-2">
+                                <div className="font-semibold">{pos.asset}</div>
+                                <div className="text-muted-foreground">{t('admin_qty')} {pos.quantity}</div>
+                                <div className="text-muted-foreground">{t('admin_avg')} {pos.avg_entry_price}</div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="text-sm text-muted-foreground">{t('admin_no_positions')}</div>
+                        )}
+                      </div>
+
+                      <div className="space-y-3">
+                        <div className="text-xs uppercase tracking-[0.35em] text-muted-foreground">{t('admin_recent_trades')}</div>
+                        {selectedDetails.trades?.length ? (
+                          <div className="space-y-2">
+                            {selectedDetails.trades.map((trade: any) => (
+                              <div key={trade.id} className="flex items-center justify-between text-sm rounded-2xl border border-border bg-secondary/40 px-3 py-2">
+                                <div className="font-semibold">{trade.asset}</div>
+                                <div className="text-muted-foreground">{trade.type.toUpperCase()}</div>
+                                <div className={`font-semibold ${trade.profit >= 0 ? 'text-success' : 'text-destructive'}`}>
+                                  {trade.profit >= 0 ? '+' : ''}{trade.profit}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="text-sm text-muted-foreground">{t('admin_no_trades')}</div>
+                        )}
+                      </div>
+                    </div>
+                  </>
+                )}
+              </section>
             </div>
           </div>
         ) : null}

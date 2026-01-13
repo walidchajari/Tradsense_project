@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import {
   Wallet,
@@ -9,17 +9,80 @@ import {
   Lightbulb,
   ShieldCheck,
   Sparkles,
-  ListChecks
+  ListChecks,
+  ArrowRight,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
-import { useAccountStatsQuery, useMarketOverviewQuery, useAISignalsQuery, useMarketHistory, useNews } from '@/lib/api';
+import { API_BASE_URL, useAccountStatsQuery, useMarketOverviewQuery, useAISignalsQuery, useMarketHistory, useNews } from '@/lib/api';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getCurrentUserId } from '@/lib/auth';
+import { useToast } from '@/hooks/use-toast';
+
+const ONBOARDING_KEY = 'tradesense.dashboard.onboarding.dismissed';
+
+type OnboardingStep = {
+  id: string;
+  title: string;
+  description: string;
+  target: 'hero' | 'stats' | 'signals' | 'news';
+};
+
+const ONBOARDING_STEPS: OnboardingStep[] = [
+  {
+    id: 'hero',
+    title: 'Live Pulse',
+    description: 'Watch BTC and market data update in real time before diving into trading.',
+    target: 'hero',
+  },
+  {
+    id: 'stats',
+    title: 'Performance Snapshot',
+    description: 'Track balance, equity, profit and drawdown with a single glance.',
+    target: 'stats',
+  },
+  {
+    id: 'signals',
+    title: 'AI Signals',
+    description: 'New signals land here with confidence scores and reasons backed by TradeSense AI.',
+    target: 'signals',
+  },
+  {
+    id: 'news',
+    title: 'Market Context',
+    description: 'Press updates and headlines help you pair decisions with actual events.',
+    target: 'news',
+  },
+];
+
+const trackDashboardEvent = (name: string, detail?: Record<string, unknown>) => {
+  if (typeof window === 'undefined') return;
+  const win = window as Window & {
+    dataLayer?: Record<string, unknown>[];
+    gtag?: (...args: any[]) => void;
+    analytics?: {
+      track: (eventName: string, props?: Record<string, unknown>) => void;
+    };
+  };
+  const payload = { event: name, ...detail };
+  if (Array.isArray(win.dataLayer)) {
+    win.dataLayer.push(payload);
+  } else if (typeof win.gtag === 'function') {
+    win.gtag('event', name, detail || {});
+  } else if (win.analytics?.track) {
+    win.analytics.track(name, detail);
+  }
+};
 
 const Dashboard = () => {
   const { t } = useLanguage();
+  const { toast } = useToast();
   const userId = getCurrentUserId();
+  const [showTour, setShowTour] = useState(false);
+  const [tourStep, setTourStep] = useState(0);
+  const [sessionStatus, setSessionStatus] = useState<'idle' | 'ok' | 'error'>('idle');
+  const signalToastRef = useRef<string>('');
+  const sessionSuccessTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { data: accountData, isLoading: accountLoading } = useAccountStatsQuery(userId);
   const account = accountData?.[0];
   const isFunded = account?.status === 'funded';
@@ -40,6 +103,13 @@ const Dashboard = () => {
 
   const profitPercent = stats.initial_balance ? ((stats.equity - stats.initial_balance) / stats.initial_balance * 100).toFixed(2) : '0.00';
   const dailyDrawdown = stats.daily_starting_equity ? ((stats.daily_starting_equity - stats.equity) / stats.daily_starting_equity * 100).toFixed(2) : '0.00';
+  const heroHighlight = showTour && tourStep === 0;
+  const statsHighlight = showTour && tourStep === 1;
+  const signalsHighlight = showTour && tourStep === 2;
+  const newsHighlight = showTour && tourStep === 3;
+  const newSignalBadge = isFunded && signals.some((signal) => Number(signal.confidence ?? 0) >= 70);
+  const tourStepData = ONBOARDING_STEPS[tourStep] ?? ONBOARDING_STEPS[ONBOARDING_STEPS.length - 1];
+  const isTourFinished = tourStep >= ONBOARDING_STEPS.length;
 
   const bvcAssets = [
     { name: 'Maroc Telecom', symbol: 'IAM', color: 'bg-blue-500/20', text: 'text-blue-500', char: 'M' },
@@ -123,6 +193,13 @@ const Dashboard = () => {
     return `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`;
   };
 
+  const heroHighlights = [
+    { value: '$10M+', label: 'Funded capital' },
+    { value: '2,500+', label: 'Active traders' },
+    { value: '85%', label: 'Success rate' },
+    { value: '24/7', label: 'Risk monitoring' },
+  ];
+
   const recommendations = [
     !isFunded && {
       icon: ShieldCheck,
@@ -165,6 +242,62 @@ const Dashboard = () => {
     tone: string;
   }>;
 
+  const hasAccount = Boolean(account && account.id);
+  const normalizedStatus = (stats.status || '').toLowerCase();
+  const checklistSteps = [
+    {
+      id: 'profile',
+      label: t('dashboard_checklist_profile'),
+      done: hasAccount,
+    },
+    {
+      id: 'challenge',
+      label: t('dashboard_checklist_challenge'),
+      done: stats.challenge_type && stats.challenge_type.toLowerCase() !== 'n/a',
+    },
+    {
+      id: 'trade',
+      label: t('dashboard_checklist_trade'),
+      done: ['active', 'funded'].includes(normalizedStatus),
+    },
+  ];
+  const completedCount = checklistSteps.filter((step) => step.done).length;
+  const checklistProgress = Math.round((completedCount / checklistSteps.length) * 100);
+
+  const handleTourAdvance = () => {
+    if (!showTour) return;
+    setTourStep((prev) => {
+      const next = prev + 1;
+      if (next >= ONBOARDING_STEPS.length) {
+        if (typeof window !== 'undefined') {
+          window.localStorage.setItem(ONBOARDING_KEY, 'true');
+        }
+        setShowTour(false);
+        trackDashboardEvent('dashboard_tour_complete', { step: ONBOARDING_STEPS[prev]?.id });
+        return ONBOARDING_STEPS.length - 1;
+      }
+      trackDashboardEvent('dashboard_tour_next', { step: ONBOARDING_STEPS[next]?.id });
+      return next;
+    });
+  };
+
+  const handleTourSkip = () => {
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(ONBOARDING_KEY, 'true');
+    }
+    setShowTour(false);
+    trackDashboardEvent('dashboard_tour_skipped', { step: tourStepData.id });
+  };
+
+  const handleStartTradingClick = () => {
+    trackDashboardEvent('dashboard_cta_start_trading', { location: 'hero' });
+  };
+
+  const handleViewSignalsClick = () => {
+    if (!isFunded) return;
+    trackDashboardEvent('dashboard_cta_view_signals');
+  };
+
   const TradingViewMini = ({ symbol }: { symbol: string }) => {
     const containerId = useMemo(() => `tv-mini-${symbol.replace(/[^a-z0-9]/gi, '')}`, [symbol]);
 
@@ -193,6 +326,76 @@ const Dashboard = () => {
     return <div id={containerId} className="h-[90px] w-full" />;
   };
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const dismissed = window.localStorage.getItem(ONBOARDING_KEY);
+    if (!dismissed) {
+      setShowTour(true);
+      trackDashboardEvent('dashboard_tour_started', { initialStep: ONBOARDING_STEPS[0].id });
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!isFunded || !signals.length) return;
+    const latestSignal = signals[0];
+    const key = `${latestSignal.symbol}-${latestSignal.side}-${latestSignal.confidence}-${latestSignal.reason || ''}`;
+    if (signalToastRef.current === key) return;
+    signalToastRef.current = key;
+    toast({
+      title: `${latestSignal.side} · ${assetName(latestSignal)}`,
+      description: `${latestSignal.symbol} • ${latestSignal.reason || 'Signal detected'} • ${latestSignal.confidence}% confidence`,
+    });
+    trackDashboardEvent('ai_signal_toast', {
+      symbol: latestSignal.symbol,
+      confidence: latestSignal.confidence,
+      side: latestSignal.side,
+    });
+  }, [signals, isFunded, toast]);
+
+  useEffect(() => {
+    if (!userId) return;
+    let isMounted = true;
+    const keepAlive = async () => {
+      if (typeof window === 'undefined') return;
+      const token = window.localStorage.getItem('auth_token');
+      if (!token) return;
+      try {
+        const response = await fetch(`${API_BASE_URL}/auth/keep-alive`, {
+          headers: { Authorization: `Bearer ${token}` },
+          cache: 'no-store',
+        });
+        if (!isMounted) return;
+        if (!response.ok) {
+          throw new Error('keep-alive failed');
+        }
+        if (sessionSuccessTimeout.current) {
+          clearTimeout(sessionSuccessTimeout.current);
+          sessionSuccessTimeout.current = null;
+        }
+        setSessionStatus('ok');
+        sessionSuccessTimeout.current = window.setTimeout(() => {
+          if (isMounted) {
+            setSessionStatus('idle');
+          }
+        }, 5000);
+      } catch (error) {
+        if (!isMounted) return;
+        setSessionStatus('error');
+        trackDashboardEvent('session_keep_alive_failed', { error: `${error}` });
+      }
+    };
+    keepAlive();
+    const interval = setInterval(keepAlive, 2 * 60 * 1000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+      if (sessionSuccessTimeout.current) {
+        clearTimeout(sessionSuccessTimeout.current);
+        sessionSuccessTimeout.current = null;
+      }
+    };
+  }, [userId]);
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -204,12 +407,106 @@ const Dashboard = () => {
             </p>
           </div>
           <Button variant="hero" asChild>
-            <Link to="/dashboard/trading">{t('dashboard_start_trading')}</Link>
+            <Link to="/dashboard/trading" onClick={handleStartTradingClick}>
+              {t('dashboard_start_trading')}
+            </Link>
           </Button>
         </div>
 
+        {/* Hero pulse */}
+        <section className="surface-card relative overflow-hidden rounded-[30px] border border-primary/30 px-6 py-8 bg-gradient-to-r from-primary/5 via-transparent to-emerald-400/10 animate-hero-glow">
+          <div className="pointer-events-none absolute inset-0 opacity-70">
+            <div className="absolute top-0 left-0 h-full w-full bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.4),_transparent_45%)]" />
+          </div>
+          <div className="relative grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
+            <div className="space-y-5">
+              <p className="text-xs uppercase tracking-[0.45em] text-muted-foreground">Live hub · AI pulse</p>
+              <h2 className="text-3xl md:text-4xl font-bold text-primary leading-tight">
+                <span className="block">Trade smarter.</span>
+                <span className="block">Get funded.</span>
+              </h2>
+              <p className="text-muted-foreground max-w-2xl">
+                Real-time snapshots, AI-ready signals, and 24/7 execution across Casablanca + global markets. Stay disciplined, finish onboarding, and unlock funding faster.
+              </p>
+              <div className="flex flex-wrap gap-4">
+                <Button variant="hero" asChild size="lg" className="shadow-[0_15px_35px_rgba(56,189,248,0.35)]">
+                  <Link to="/dashboard/trading" onClick={handleStartTradingClick}>
+                    Start Challenge
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
+                </Button>
+                <Link
+                  to="/dashboard/wallet"
+                  className="inline-flex items-center justify-center rounded-[18px] bg-[#fcbf0f] px-5 py-3 text-sm font-semibold text-[#1f2327] transition hover:bg-[#f5b52c] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#fcbf0f]"
+                >
+                  <span className="mr-2">View Plans</span>
+                  <ArrowRight className="w-3 h-3" />
+                </Link>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {heroHighlights.map((highlight) => (
+                  <div
+                    key={highlight.label}
+                    className="rounded-2xl border border-border/60 bg-background/50 px-4 py-5 text-center transition hover:border-primary/70 hover:shadow-[0_16px_40px_rgba(15,118,255,0.25)]"
+                  >
+                    <div className="text-xl font-semibold text-primary">{highlight.value}</div>
+                    <div className="text-[11px] uppercase tracking-wider text-muted-foreground mt-1">
+                      {highlight.label}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {chartAssets.map((asset) => (
+                <div
+                  key={asset.symbol}
+                  className="rounded-2xl border border-border/60 bg-background/70 p-4 text-center tracking-tight"
+                >
+                  <div className="text-xs uppercase text-muted-foreground">{asset.symbol}</div>
+                  <div className="text-lg font-semibold">{asset.name}</div>
+                  <div className="mt-2 text-base font-mono">{formatPrice(asset.symbol)}</div>
+                  <div className="text-sm text-success">{formatChange(latestChange(asset.symbol) ?? null)}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {showTour && !isTourFinished && (
+          <div className="tour-guide">
+            <div className="tour-guide-content">
+              <p className="text-[11px] uppercase tracking-[0.4em] text-muted-foreground mb-1">
+                Tour {tourStep + 1}/{ONBOARDING_STEPS.length}
+              </p>
+              <h3 className="text-lg font-semibold">{tourStepData.title}</h3>
+              <p className="text-sm text-muted-foreground">{tourStepData.description}</p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  className="rounded-full border border-border/50 px-4 py-2 text-xs font-semibold text-muted-foreground transition hover:border-primary hover:text-primary"
+                  onClick={handleTourSkip}
+                >
+                  Skip tour
+                </button>
+                <button
+                  type="button"
+                  className="rounded-full bg-primary px-4 py-2 text-xs font-semibold text-white transition hover:bg-primary/90"
+                  onClick={handleTourAdvance}
+                >
+                  {tourStep + 1 >= ONBOARDING_STEPS.length ? 'Finish tour' : 'Next step'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <section
+          className={`surface-card grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-6 ${
+            statsHighlight ? 'tour-highlight' : ''
+          }`}
+        >
           {accountLoading ? (
             Array.from({ length: 4 }).map((_, idx) => (
               <div key={`stat-skeleton-${idx}`} className="surface-card p-6 animate-pulse">
@@ -219,7 +516,7 @@ const Dashboard = () => {
             ))
           ) : (
           <>
-          <div className="surface-card p-6">
+          <div className="surface-card p-6 transition-transform duration-500 hover:-translate-y-1 hover:shadow-[0_20px_45px_rgba(56,189,248,0.25)] animate-card-float">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
                 <Wallet className="w-5 h-5 text-primary" />
@@ -229,7 +526,7 @@ const Dashboard = () => {
             <div className="text-2xl font-bold trading-number">${stats.balance?.toLocaleString()}</div>
           </div>
 
-          <div className="surface-card p-6">
+          <div className="surface-card p-6 transition-transform duration-500 hover:-translate-y-1 hover:shadow-[0_20px_45px_rgba(34,197,94,0.25)] animate-card-float">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 rounded-lg bg-success/20 flex items-center justify-center">
                 <Activity className="w-5 h-5 text-success" />
@@ -239,7 +536,7 @@ const Dashboard = () => {
             <div className="text-2xl font-bold trading-number">${stats.equity?.toLocaleString()}</div>
           </div>
 
-          <div className="surface-card p-6">
+          <div className="surface-card p-6 transition-transform duration-500 hover:-translate-y-1 hover:shadow-[0_20px_45px_rgba(16,185,129,0.3)] animate-card-float">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 rounded-lg bg-success/20 flex items-center justify-center">
                 <TrendingUp className="w-5 h-5 text-success" />
@@ -251,7 +548,7 @@ const Dashboard = () => {
             </div>
           </div>
 
-          <div className="surface-card p-6">
+          <div className="surface-card p-6 transition-transform duration-500 hover:-translate-y-1 hover:shadow-[0_20px_45px_rgba(249,115,22,0.25)] animate-card-float">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 rounded-lg bg-warning/20 flex items-center justify-center">
                 <AlertTriangle className="w-5 h-5 text-warning" />
@@ -262,98 +559,50 @@ const Dashboard = () => {
           </div>
           </>
           )}
-        </div>
-
-        {/* Market Pulse */}
-        <div className="surface-card p-6">
-          <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
-            <div>
-              <div className="section-title">{t('dashboard_market_pulse')}</div>
-              <h2 className="text-lg font-semibold">{t('dashboard_market_pulse_subtitle')}</h2>
-            </div>
-            <div className="text-xs text-muted-foreground">{t('dashboard_market_pulse_window')}</div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {chartAssets.map((asset) => {
-              const series = history?.[asset.symbol] || [];
-              const path = sparklinePath(series, 240, 80);
-              const delta = series.length > 1 ? ((series[series.length - 1] - series[0]) / (series[0] || 1)) * 100 : 0;
-              const change = latestChange(asset.symbol);
-              return (
-                <div key={asset.symbol} className="rounded-xl border border-border/60 bg-secondary/30 p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="text-xs text-muted-foreground uppercase tracking-wider">{asset.symbol}</div>
-                      <div className="text-sm font-semibold">{asset.name}</div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-sm font-semibold trading-number">
-                        {formatPrice(asset.symbol)}
-                      </div>
-                      <div className={`text-xs ${change === null || change === undefined || change < 0 ? 'text-destructive' : 'text-success'}`}>
-                        {formatChange(change ?? null)}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="mt-3 h-[90px]">
-                    {asset.tvSymbol ? (
-                      <TradingViewMini symbol={asset.tvSymbol} />
-                    ) : historyLoading ? (
-                      <div className="h-full w-full rounded-lg bg-muted animate-pulse" />
-                    ) : series.length < 2 ? (
-                      <div className="h-full w-full rounded-lg bg-secondary/50 flex items-center justify-center text-xs text-muted-foreground">
-                        {t('dashboard_market_no_chart')}
-                      </div>
-                    ) : (
-                      <svg width="100%" height="90" viewBox="0 0 240 80" className="overflow-visible">
-                        <defs>
-                          <linearGradient id={`chart-${asset.symbol.replace(/[^a-z0-9]/gi, '')}`} x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor={asset.fill} />
-                            <stop offset="100%" stopColor="transparent" />
-                          </linearGradient>
-                        </defs>
-                        <path d={path} fill="none" stroke={asset.line} strokeWidth="2.4" />
-                        <path
-                          d={`${path} L240,80 L0,80 Z`}
-                          fill={`url(#chart-${asset.symbol.replace(/[^a-z0-9]/gi, '')})`}
-                        />
-                      </svg>
-                    )}
-                  </div>
-                  <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
-                    <span>{t('dashboard_market_trend')}</span>
-                    <span className={delta >= 0 ? 'text-success' : 'text-destructive'}>
-                      {formatDelta(delta)}
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
+        </section>
 
         <div className="surface-card p-6">
-          <div className="flex items-center justify-between gap-3 mb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <div className="section-title">{t('dashboard_onboarding')}</div>
-              <h2 className="text-lg font-semibold">{t('dashboard_onboarding_title')}</h2>
+              <h2 className="text-lg font-semibold">{t('dashboard_checklist_title')}</h2>
+              <p className="text-xs text-muted-foreground mt-1">{t('dashboard_checklist_hint')}</p>
             </div>
             <Button variant="outline" size="sm" asChild>
               <Link to="/dashboard/profile">{t('dashboard_onboarding_cta')}</Link>
             </Button>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
-            {[
-              t('dashboard_onboarding_step_profile'),
-              t('dashboard_onboarding_step_plan'),
-              t('dashboard_onboarding_step_trade'),
-            ].map((item) => (
-              <div key={item} className="flex items-center gap-2 rounded-lg bg-secondary/40 border border-border/60 px-3 py-2">
-                <div className="w-2.5 h-2.5 rounded-full bg-primary/60" />
-                <span>{item}</span>
-              </div>
-            ))}
+          <div className="mt-6">
+            <div className="h-2 rounded-full bg-secondary/40 overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-primary to-success transition-all duration-500"
+                style={{ width: `${checklistProgress}%` }}
+              />
+            </div>
+            <div className="flex items-center justify-between text-xs text-muted-foreground mt-2">
+              <span>{t('dashboard_onboarding_title')}</span>
+              <span>{checklistProgress}%</span>
+            </div>
           </div>
+          <ul className="mt-6 space-y-3">
+            {checklistSteps.map((step) => (
+              <li key={step.id} className="flex items-center gap-3">
+                <span
+                  className={`w-3 h-3 rounded-full ${
+                    step.done ? 'bg-success' : 'bg-muted-foreground/60'
+                  }`}
+                />
+                <div className="flex-1">
+                  <div className="text-sm font-medium">{step.label}</div>
+                  <div className="text-[11px] text-muted-foreground">
+                    {step.done
+                      ? t('dashboard_checklist_status_completed')
+                      : t('dashboard_checklist_status_pending')}
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
         </div>
 
         {/* Challenge Progress */}
@@ -384,13 +633,11 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Live Marketplace */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="space-y-6">
-            <div className="surface-card p-6">
-              <h2 className="text-lg font-semibold mb-4">{t('dashboard_live_hub')}</h2>
-              <div className="space-y-4 max-h-[400px] overflow-auto pr-2 custom-scrollbar">
-              <div className="flex items-center gap-4 p-3 rounded-lg hover:bg-secondary/30 transition-colors">
+        <section className="grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] gap-6">
+          <div className={`surface-card p-6 ${newsHighlight ? 'tour-highlight' : ''}`}>
+            <h2 className="text-lg font-semibold mb-4">{t('dashboard_live_hub')}</h2>
+            <div className="space-y-4 max-h-[400px] overflow-auto pr-2 custom-scrollbar">
+              <div className="flex items-center gap-4 p-3 rounded-lg border border-border/60 bg-gradient-to-r from-primary/10 to-transparent">
                 <div className="w-10 h-10 rounded-xl bg-orange-500/20 flex items-center justify-center">
                   <span className="text-xl text-orange-500 font-bold">₿</span>
                 </div>
@@ -404,9 +651,8 @@ const Dashboard = () => {
                   <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
                 </div>
               </div>
-
               {bvcAssets.map((asset) => (
-                <div key={asset.symbol} className="flex items-center gap-4 p-3 rounded-lg hover:bg-secondary/30 transition-colors">
+                <div key={asset.symbol} className="flex items-center gap-4 p-3 rounded-lg transition-colors duration-200 hover:bg-secondary/30">
                   <div className={`w-10 h-10 rounded-xl ${asset.color} flex items-center justify-center`}>
                     <span className={`text-xl ${asset.text} font-bold`}>{asset.char}</span>
                   </div>
@@ -416,22 +662,19 @@ const Dashboard = () => {
                       {priceFor(asset.symbol) ? `${priceFor(asset.symbol)} DH` : '...'}
                     </div>
                   </div>
-                  <div className="ml-auto">
-                    <span className="text-[10px] font-bold text-muted-foreground">BVC</span>
-                  </div>
+                  <div className="ml-auto text-[10px] font-bold text-muted-foreground">BVC</div>
                 </div>
               ))}
-
-              <div className="flex items-center gap-4 p-3 rounded-lg hover:bg-secondary/30 transition-colors">
+              <div className="flex items-center gap-4 p-3 rounded-lg transition-colors duration-200 hover:bg-secondary/30">
                 <div className="w-10 h-10 rounded-xl bg-gray-500/20 flex items-center justify-center">
                   <span className="text-xl text-white font-bold"></span>
                 </div>
-                  <div>
-                    <div className="text-xs text-muted-foreground uppercase tracking-wider">Apple Inc</div>
-                    <div className="text-lg font-bold trading-number">
-                      ${priceFor('AAPL') ? priceFor('AAPL').toLocaleString() : '---'}
-                    </div>
+                <div>
+                  <div className="text-xs text-muted-foreground uppercase tracking-wider">Apple Inc</div>
+                  <div className="text-lg font-bold trading-number">
+                    ${priceFor('AAPL') ? priceFor('AAPL').toLocaleString() : '---'}
                   </div>
+                </div>
                 <div className="ml-auto">
                   <div className="w-2 h-2 rounded-full bg-primary" />
                 </div>
@@ -439,6 +682,7 @@ const Dashboard = () => {
             </div>
           </div>
 
+          <div className="space-y-6">
             <div className="surface-card p-6">
               <div className="flex items-center justify-between mb-4">
                 <div>
@@ -489,49 +733,54 @@ const Dashboard = () => {
                 )}
               </div>
             </div>
-          </div>
 
-          <div className="surface-card p-6 border-primary/30">
-            <div className="mb-4 px-4 py-2 rounded-lg bg-primary/10 border border-primary/30 text-primary flex items-center gap-2 text-xs font-semibold">
-              <Zap className="w-4 h-4" />
-              {t('dashboard_ai_banner')}
-            </div>
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-                <Zap className="w-4 h-4 text-primary" />
+            <div className={`surface-card p-6 border-primary/30 ${signalsHighlight ? 'tour-highlight' : ''}`}>
+              <div className="mb-4 px-4 py-2 rounded-lg bg-primary/10 border border-primary/30 text-primary flex items-center gap-2 text-xs font-semibold">
+                <Zap className="w-4 h-4" />
+                {t('dashboard_ai_banner')}
               </div>
-              <h2 className="text-lg font-semibold">{t('dashboard_ai_signals')}</h2>
-            </div>
-            <div className="space-y-4">
-              {!isFunded ? (
-                <div className="p-4 rounded-lg bg-secondary/30 text-sm text-center">
-                  {t('funded_only_ai')}
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                  <Zap className="w-4 h-4 text-primary" />
                 </div>
-              ) : aiLoading ? (
-                <div className="p-4 rounded-lg bg-secondary animate-pulse text-sm text-center">{t('dashboard_ai_loading')}</div>
-              ) : signals.length > 0 ? (
-                signals.map((signal, idx) => {
-                  const tone = signalTone(signal.color);
-                  return (
-                    <div key={idx} className={`p-4 rounded-lg ${tone.bg} ${tone.border}`}>
-                      <div className="flex justify-between items-center mb-1">
-                        <span className={`font-bold ${tone.text}`}>{signal.side} SIGNAL</span>
-                        <span className="text-xs text-muted-foreground">{t('dashboard_confidence')} {signal.confidence}%</span>
+                <h2 className="text-lg font-semibold">{t('dashboard_ai_signals')}</h2>
+              </div>
+              <div className="space-y-4">
+                {!isFunded ? (
+                  <div className="p-4 rounded-lg bg-secondary/30 text-sm text-center">
+                    {t('funded_only_ai')}
+                  </div>
+                ) : aiLoading ? (
+                  <div className="p-4 rounded-lg bg-secondary animate-pulse text-sm text-center">{t('dashboard_ai_loading')}</div>
+                ) : signals.length > 0 ? (
+                  signals.map((signal, idx) => {
+                    const tone = signalTone(signal.color);
+                    return (
+                      <div key={idx} className={`p-4 rounded-lg ${tone.bg} ${tone.border}`}>
+                        <div className="flex justify-between items-center mb-1">
+                          <span className={`font-bold ${tone.text}`}>{signal.side} SIGNAL</span>
+                          <span className="text-xs text-muted-foreground">{t('dashboard_confidence')} {signal.confidence}%</span>
+                        </div>
+                        <div className="text-sm font-medium mb-1">{assetName(signal)} ({signal.symbol})</div>
+                        <div className="text-xs text-muted-foreground">{signal.reason}</div>
                       </div>
-                      <div className="text-sm font-medium mb-1">{assetName(signal)} ({signal.symbol})</div>
-                      <div className="text-xs text-muted-foreground">{signal.reason}</div>
-                    </div>
-                  );
-                })
-              ) : (
-                <div className="p-4 rounded-lg bg-secondary/20 text-sm text-center">{t('dashboard_ai_empty')}</div>
-              )}
-              <Button variant="outline" className="w-full text-xs h-8" disabled={!isFunded}>
-                {t('dashboard_view_all_signals')}
-              </Button>
+                    );
+                  })
+                ) : (
+                  <div className="p-4 rounded-lg bg-secondary/20 text-sm text-center">{t('dashboard_ai_empty')}</div>
+                )}
+                <Button
+                  variant="outline"
+                  className="w-full text-xs h-8"
+                  disabled={!isFunded}
+                  onClick={handleViewSignalsClick}
+                >
+                  {t('dashboard_view_all_signals')}
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
+        </section>
       </div>
     </DashboardLayout>
   );

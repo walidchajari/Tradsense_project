@@ -36,19 +36,28 @@ const HeroSection = () => {
           </p>
 
           {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16 animate-slide-up" style={{ animationDelay: '0.2s' }}>
-            <Button variant="hero" size="xl" asChild>
-              <Link to="/register">
-                Start Challenge
-                <ArrowRight className="w-5 h-5" />
-              </Link>
-            </Button>
-            <Button variant="outline" size="xl" asChild>
-              <a href="#pricing">
-                <Play className="w-5 h-5" />
-                {t('hero_view_plans')}
-              </a>
-            </Button>
+          <div className="flex flex-col items-center gap-6 mb-4">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-up" style={{ animationDelay: '0.2s' }}>
+              <Button
+                variant="hero"
+                size="xl"
+                asChild
+                className="group relative overflow-hidden px-10 py-3 shadow-[0_15px_40px_rgba(34,197,94,0.35)]"
+              >
+                <Link to="/register">
+                  <span className="flex items-center gap-2">
+                    <span className="text-lg font-semibold">{t('hero_cta_text')}</span>
+                    <ArrowRight className="w-5 h-5 transition-transform duration-200 group-hover:translate-x-1" />
+                  </span>
+                </Link>
+              </Button>
+              <Button variant="outline" size="xl" asChild>
+                <a href="#pricing">
+                  <Play className="w-5 h-5" />
+                  {t('hero_view_plans')}
+                </a>
+              </Button>
+            </div>
           </div>
 
           {/* Stats */}
