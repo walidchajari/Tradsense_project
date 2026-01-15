@@ -211,7 +211,7 @@ const Challenge = () => {
                   : t('challenge_trial_desc')}
               </p>
               <Button variant="outline" size="sm" className="mt-3" asChild>
-                <Link to="/register?type=paid">
+                <Link to="/checkout?plan=pro">
                   {t('challenge_upgrade')}
                   <ChevronRight className="w-4 h-4 ml-1" />
                 </Link>

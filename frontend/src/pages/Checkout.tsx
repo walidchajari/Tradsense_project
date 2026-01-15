@@ -43,6 +43,7 @@ const Checkout = () => {
   const [paypalReady, setPaypalReady] = useState(false);
   const [paypalConfig, setPaypalConfig] = useState<{ client_id: string; currency_code: string } | null>(null);
   const [processing, setProcessing] = useState<string | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState<string>(planParam);
   const navigate = useNavigate();
   const { toast } = useToast();
   const { t } = useLanguage();
@@ -77,11 +78,18 @@ const Checkout = () => {
     fetchPayPalConfig();
   }, []);
 
+  useEffect(() => {
+    if (!challenges.length) return;
+    const match = challenges.find((c) => c.name.toLowerCase() === planParam);
+    const nextPlan = (match || challenges[0]).name.toLowerCase();
+    setSelectedPlan(nextPlan);
+  }, [challenges, planParam]);
+
   const selectedChallenge = useMemo(() => {
     if (!challenges.length) return null;
-    const match = challenges.find((c) => c.name.toLowerCase() === planParam);
+    const match = challenges.find((c) => c.name.toLowerCase() === selectedPlan);
     return match || challenges[0];
-  }, [challenges, planParam]);
+  }, [challenges, selectedPlan]);
 
   useEffect(() => {
     const setupPayPal = async () => {
@@ -216,20 +224,48 @@ const Checkout = () => {
 
         <div className="space-y-6 max-w-3xl mx-auto">
           <div className="surface-card p-6">
-            <h2 className="text-lg font-semibold mb-4">{t('checkout_order_summary')}</h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold">{t('checkout_order_summary')}</h2>
+              <span className="text-xs text-muted-foreground">BVC • Global</span>
+            </div>
             {selectedChallenge ? (
-              <div className="space-y-3">
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                  <div className="rounded-2xl border border-border/60 bg-background/60 p-4">
+                    <div className="text-xs uppercase tracking-wider text-muted-foreground">{t('checkout_plan_label')}</div>
+                    <div className="mt-2 flex items-center gap-2">
+                      <select
+                        value={selectedPlan}
+                        onChange={(event) => setSelectedPlan(event.target.value)}
+                        className="w-full appearance-none rounded-xl border border-border/60 bg-gradient-to-r from-background/80 to-background/60 px-3 py-2 text-sm font-semibold text-foreground shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
+                        aria-label={t('checkout_plan_label')}
+                        disabled={!challenges.length}
+                      >
+                        {challenges.map((challenge) => (
+                          <option key={challenge.id} value={challenge.name.toLowerCase()}>
+                            {challenge.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                  <div className="rounded-2xl border border-border/60 bg-background/60 p-4">
+                    <div className="text-xs uppercase tracking-wider text-muted-foreground">{t('checkout_account_size_label')}</div>
+                    <div className="mt-2 text-lg font-semibold">${selectedChallenge.initial_balance.toLocaleString()}</div>
+                    <div className="text-xs text-muted-foreground">On-chain & equities</div>
+                  </div>
+                  <div className="rounded-2xl border border-border/60 bg-background/60 p-4">
+                    <div className="text-xs uppercase tracking-wider text-muted-foreground">{t('checkout_price_label')}</div>
+                    <div className="mt-2 text-lg font-semibold trading-number">{selectedChallenge.price_dh} DH</div>
+                    <div className="text-xs text-muted-foreground">One-time challenge fee</div>
+                  </div>
+                </div>
+                <div className="rounded-2xl border border-border/60 bg-secondary/40 px-4 py-3 text-xs text-muted-foreground">
+                  Instant activation after payment confirmation. Switch plans anytime before payment.
+                </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">{t('checkout_plan_label')}</span>
                   <span className="font-medium">{selectedChallenge.name}</span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">{t('checkout_account_size_label')}</span>
-                  <span className="font-medium">${selectedChallenge.initial_balance.toLocaleString()}</span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">{t('checkout_price_label')}</span>
-                  <span className="font-bold trading-number">{selectedChallenge.price_dh} DH</span>
                 </div>
               </div>
             ) : (

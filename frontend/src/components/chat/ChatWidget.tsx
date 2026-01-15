@@ -75,11 +75,12 @@ const ChatWidget = () => {
     setError(null);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/chat/gemini`, {
+      const chatBaseUrl = import.meta.env.VITE_CHAT_API_BASE_URL || API_BASE_URL;
+      const response = await fetch(`${chatBaseUrl}/chat/gemini`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          messages: nextMessages,
+          message: trimmed,
           language,
         }),
       });
@@ -110,38 +111,40 @@ const ChatWidget = () => {
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
-        className="group relative flex items-center gap-2 rounded-full border border-border/60 bg-card/80 px-4 py-3 shadow-[0_20px_50px_-25px_rgba(15,23,42,0.6)] backdrop-blur-xl transition-all hover:-translate-y-0.5 hover:border-primary/40"
+        className="group relative flex h-14 w-14 items-center justify-center rounded-full border border-white/10 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 shadow-[0_20px_50px_-28px_rgba(15,23,42,0.8)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_60px_-26px_rgba(34,211,238,0.45)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/70"
         aria-label={isOpen ? t("chat_close") : t("chat_open")}
       >
-        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-primary to-emerald-400 text-white shadow-lg shadow-primary/30">
+        <span className="absolute inset-0 rounded-full bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.35),transparent_60%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+        <span className="relative flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-cyan-400 via-teal-400 to-emerald-400 text-slate-900 shadow-[0_10px_25px_-12px_rgba(34,211,238,0.9)]">
           <MessageCircle className="h-5 w-5" />
         </span>
-        <span className="hidden text-sm font-semibold text-foreground sm:inline">
-          {t("chat_title")}
-        </span>
-        <span className="hidden text-xs text-muted-foreground sm:inline">
-          {t("chat_subtitle")}
-        </span>
+        <span className="sr-only">{t("chat_title")}</span>
       </button>
 
       {isOpen && (
         <div
-          className="mt-4 w-[320px] max-w-[calc(100vw-3rem)] overflow-hidden rounded-3xl border border-border/60 bg-card/95 shadow-[0_26px_60px_-34px_rgba(15,23,42,0.7)] backdrop-blur-2xl sm:w-[360px]"
+          className="mt-4 w-[320px] max-w-[calc(100vw-3rem)] overflow-hidden rounded-3xl border border-white/10 bg-slate-950/90 shadow-[0_30px_70px_-36px_rgba(15,23,42,0.9)] backdrop-blur-2xl sm:w-[360px]"
           dir={direction}
         >
-          <div className="flex items-center justify-between border-b border-border/60 px-4 py-3">
-            <div>
-              <p className="text-sm font-semibold">{t("chat_title")}</p>
-              <p className="text-xs text-muted-foreground">{t("chat_subtitle")}</p>
+          <div className="relative flex items-center justify-between border-b border-white/10 px-4 py-4">
+            <div className="relative z-10 flex items-center gap-3">
+              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-cyan-400 via-teal-400 to-emerald-400 text-slate-900 shadow-[0_10px_22px_-12px_rgba(34,211,238,0.9)]">
+                <MessageCircle className="h-4 w-4" />
+              </span>
+              <div>
+                <p className="text-sm font-semibold text-white">{t("chat_title")}</p>
+                <p className="text-xs text-slate-300">{t("chat_subtitle")}</p>
+              </div>
             </div>
             <button
               type="button"
               onClick={() => setIsOpen(false)}
-              className="rounded-full p-2 text-muted-foreground transition-colors hover:text-foreground"
+              className="relative z-10 rounded-full border border-white/10 bg-white/5 p-2 text-slate-200 transition-colors hover:text-white"
               aria-label={t("chat_close")}
             >
               <X className="h-4 w-4" />
             </button>
+            <span className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.2),transparent_65%)]" />
           </div>
 
           <div
@@ -156,8 +159,8 @@ const ChatWidget = () => {
                 <div
                   className={`max-w-[85%] rounded-2xl px-4 py-2 text-sm leading-relaxed shadow-sm ${
                     message.role === "user"
-                      ? "bg-primary text-white shadow-primary/20"
-                      : "bg-background/80 text-foreground"
+                      ? "bg-gradient-to-br from-cyan-400 via-teal-400 to-emerald-400 text-slate-900 shadow-[0_10px_22px_-14px_rgba(34,211,238,0.6)]"
+                      : "bg-white/5 text-slate-100"
                   }`}
                 >
                   {message.content}
@@ -166,7 +169,7 @@ const ChatWidget = () => {
             ))}
             {isSending && (
               <div className="flex justify-start">
-                <div className="rounded-2xl bg-background/80 px-4 py-2 text-sm text-muted-foreground">
+                <div className="rounded-2xl bg-white/5 px-4 py-2 text-sm text-slate-300">
                   {t("chat_thinking")}
                 </div>
               </div>
@@ -179,7 +182,7 @@ const ChatWidget = () => {
                 key={reply}
                 type="button"
                 onClick={() => void sendMessage(reply)}
-                className="rounded-full border border-border/70 bg-background/70 px-3 py-1 text-xs font-semibold text-muted-foreground transition-colors hover:text-foreground"
+                className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-slate-300 transition-colors hover:text-white"
               >
                 {reply}
               </button>
@@ -190,13 +193,13 @@ const ChatWidget = () => {
             <div className="px-4 pb-2 text-xs text-destructive">{error}</div>
           )}
 
-          <form onSubmit={onSubmit} className="flex items-center gap-2 border-t border-border/60 px-4 py-3">
+          <form onSubmit={onSubmit} className="flex items-center gap-2 border-t border-white/10 px-4 py-3">
             <input
               ref={inputRef}
               value={input}
               onChange={(event) => setInput(event.target.value)}
               placeholder={t("chat_placeholder")}
-              className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+              className="flex-1 bg-transparent text-sm text-slate-100 outline-none placeholder:text-slate-400"
             />
             <Button type="submit" size="icon" variant="hero" disabled={isSending || !input.trim()}>
               <Send className="h-4 w-4" />

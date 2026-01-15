@@ -7,7 +7,7 @@ import math
 import os
 from typing import List, Dict, Any, Optional
 from .caching import cache
-from .market_scraper_casablanca import scrape_casablanca_stock_exchange, scrape_casablanca_live_overview
+from .casablanca_service import scrape_casablanca_stock_exchange, scrape_casablanca_live_overview
 
 try:
     import requests

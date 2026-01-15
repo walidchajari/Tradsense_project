@@ -1,6 +1,7 @@
 # Core FastAPI framework
 fastapi
 uvicorn[standard]
+python-multipart
 
 # WSGI Server
 gunicorn
@@ -25,3 +26,6 @@ pydantic-settings
 
 # Google OAuth verification
 google-auth
+
+# Google Gemini SDK
+google-genai

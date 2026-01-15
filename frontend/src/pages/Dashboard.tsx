@@ -108,7 +108,7 @@ const trackDashboardEvent = (name: string, detail?: Record<string, unknown>) => 
 };
 
 const Dashboard = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { toast } = useToast();
   const userId = getCurrentUserId();
   const [showTour, setShowTour] = useState(false);
@@ -151,6 +151,32 @@ const Dashboard = () => {
     { name: 'Bank of Africa', symbol: 'BOA', color: 'bg-indigo-500/20', text: 'text-indigo-500', char: 'B' },
     { name: 'Addoha', symbol: 'ADH', color: 'bg-red-500/20', text: 'text-red-500', char: 'A' },
   ];
+  const { history: bvcHistory = {}, isLoading: bvcHistoryLoading } = useMarketHistory(
+    bvcAssets.map((asset) => asset.symbol),
+    24,
+  );
+
+  const getBvcNews = (lang: string) => {
+    if (lang === 'ar') {
+      return [
+        { title: 'ملخص السوق', summary: 'سيولة مستقرة على اسهم البنوك والاتصالات.', time: 'قبل 10 دقائق' },
+        { title: 'اتجاه القطاع', summary: 'القطاع البنكي يحافظ على توازن طفيف.', time: 'قبل 25 دقيقة' },
+        { title: 'تقلبات محدودة', summary: 'اتساع محدود مع تحركات جانبية.', time: 'قبل 1 ساعة' },
+      ];
+    }
+    if (lang === 'en') {
+      return [
+        { title: 'Market brief', summary: 'Liquidity steady across banks and telecom names.', time: '10 min ago' },
+        { title: 'Sector tone', summary: 'Banking segment holds a mild balance.', time: '25 min ago' },
+        { title: 'Low volatility', summary: 'Tight range with sideways moves.', time: '1 hour ago' },
+      ];
+    }
+    return [
+      { title: 'Resume du marche', summary: 'Liquidite stable sur banques et telecoms.', time: 'il y a 10 min' },
+      { title: 'Tendance secteur', summary: 'Le segment bancaire reste equilibre.', time: 'il y a 25 min' },
+      { title: 'Volatilite faible', summary: 'Range serre avec mouvements lateraux.', time: 'il y a 1 heure' },
+    ];
+  };
 
   const assetName = (signal: any) => {
     const bvc = bvcAssets.find(a => a.symbol === signal.symbol);
@@ -160,6 +186,25 @@ const Dashboard = () => {
 
   const priceFor = (symbol: string) => {
     return assets.find((asset: any) => asset.symbol === symbol)?.price;
+  };
+
+  const bvcSnapshot = bvcAssets.map((asset) => {
+    const data = assets.find((item: any) => item.symbol === asset.symbol);
+    return { ...asset, data };
+  });
+
+  const movers = bvcSnapshot
+    .filter((item) => typeof item.data?.change_pct === 'number')
+    .sort((a, b) => (b.data?.change_pct ?? 0) - (a.data?.change_pct ?? 0));
+  const topGainers = movers.filter((item) => (item.data?.change_pct ?? 0) > 0).slice(0, 3);
+  const topLosers = [...movers].reverse().filter((item) => (item.data?.change_pct ?? 0) < 0).slice(0, 3);
+
+  const sparkSeriesFor = (symbol: string) => {
+    const series = bvcHistory[symbol] || [];
+    if (series.length >= 2) return series;
+    const price = priceFor(symbol);
+    if (typeof price === 'number') return Array.from({ length: 12 }, () => price);
+    return [];
   };
 
   const signalTone = (color: string) => {
@@ -718,7 +763,9 @@ const Dashboard = () => {
                       {priceFor(asset.symbol) ? `${priceFor(asset.symbol)} DH` : '...'}
                     </div>
                   </div>
-                  <div className="ml-auto text-[10px] font-bold text-muted-foreground">BVC</div>
+                  <div className="ml-auto">
+                    <div className="h-2 w-2 rounded-full bg-success shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
+                  </div>
                 </div>
               ))}
               <div className="flex items-center gap-4 p-3 rounded-lg transition-colors duration-200 hover:bg-secondary/30">
@@ -734,6 +781,128 @@ const Dashboard = () => {
                 <div className="ml-auto">
                   <div className="w-2 h-2 rounded-full bg-primary" />
                 </div>
+              </div>
+            </div>
+            <div className="mt-5 rounded-2xl border border-border/60 bg-secondary/30 p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-xs text-muted-foreground uppercase tracking-wider">BVC mini-news</div>
+                  <div className="text-sm font-semibold">Casablanca pulse</div>
+                </div>
+                <div className="h-2 w-2 rounded-full bg-success shadow-[0_0_10px_rgba(52,211,153,0.8)]" />
+              </div>
+              <div className="mt-3 space-y-3">
+                {getBvcNews(language).map((item) => (
+                  <div key={item.title} className="rounded-xl border border-border/60 bg-background/60 px-3 py-2">
+                    <div className="text-xs font-semibold">{item.title}</div>
+                    <div className="text-xs text-muted-foreground">{item.summary}</div>
+                    <div className="mt-1 text-[10px] text-muted-foreground">{item.time}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="mt-5 grid gap-4 lg:grid-cols-2">
+              <div className="rounded-2xl border border-border/60 bg-background/60 p-4">
+                <div className="text-xs text-muted-foreground uppercase tracking-wider">BVC heatmap</div>
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  {bvcSnapshot.map((asset) => {
+                    const change = asset.data?.change_pct ?? 0;
+                    const tone =
+                      change > 0
+                        ? 'border-success/30 bg-success/10 text-success'
+                        : change < 0
+                          ? 'border-destructive/30 bg-destructive/10 text-destructive'
+                          : 'border-border/60 bg-secondary/40 text-muted-foreground';
+                    return (
+                      <div key={asset.symbol} className={`rounded-xl border px-3 py-2 ${tone}`}>
+                        <div className="text-[11px] font-semibold">{asset.symbol}</div>
+                        <div className="text-xs">{asset.name}</div>
+                        <div className="mt-1 text-xs font-semibold">
+                          {typeof asset.data?.price === 'number' ? `${asset.data.price} DH` : '...'}
+                        </div>
+                        <div className="text-[10px]">
+                          {typeof asset.data?.change_pct === 'number'
+                            ? `${asset.data.change_pct > 0 ? '+' : ''}${asset.data.change_pct}%`
+                            : bvcHistoryLoading
+                              ? 'loading...'
+                              : 'no data'}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+              <div className="rounded-2xl border border-border/60 bg-background/60 p-4">
+                <div className="text-xs text-muted-foreground uppercase tracking-wider">Top movers</div>
+                <div className="mt-3 space-y-2">
+                  {topGainers.map((asset) => (
+                    <div key={`gain-${asset.symbol}`} className="flex items-center justify-between rounded-xl border border-success/20 bg-success/5 px-3 py-2">
+                      <div>
+                        <div className="text-xs font-semibold">{asset.name}</div>
+                        <div className="text-[10px] text-muted-foreground">{asset.symbol}</div>
+                      </div>
+                      <div className="text-xs font-semibold text-success">
+                        +{asset.data?.change_pct}%
+                      </div>
+                    </div>
+                  ))}
+                  {topLosers.map((asset) => (
+                    <div key={`loss-${asset.symbol}`} className="flex items-center justify-between rounded-xl border border-destructive/20 bg-destructive/5 px-3 py-2">
+                      <div>
+                        <div className="text-xs font-semibold">{asset.name}</div>
+                        <div className="text-[10px] text-muted-foreground">{asset.symbol}</div>
+                      </div>
+                      <div className="text-xs font-semibold text-destructive">
+                        {asset.data?.change_pct}%
+                      </div>
+                    </div>
+                  ))}
+                  {!topGainers.length && !topLosers.length && (
+                    <div className="rounded-xl border border-border/60 bg-secondary/40 px-3 py-2 text-xs text-muted-foreground">
+                      {bvcHistoryLoading ? 'Loading...' : 'No movers data yet.'}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+            <div className="mt-4 rounded-2xl border border-border/60 bg-background/60 p-4">
+              <div className="text-xs text-muted-foreground uppercase tracking-wider">Micro trends</div>
+              <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                {bvcAssets.map((asset) => {
+                  const series = sparkSeriesFor(asset.symbol);
+                  const hasSeries = series.length >= 2;
+                  return (
+                    <div key={`spark-${asset.symbol}`} className="rounded-xl border border-border/60 bg-secondary/30 px-3 py-2">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="text-xs font-semibold">{asset.name}</div>
+                          <div className="text-[10px] text-muted-foreground">{asset.symbol}</div>
+                        </div>
+                        <div className="text-xs font-semibold">
+                          {typeof priceFor(asset.symbol) === 'number' ? `${priceFor(asset.symbol)} DH` : '...'}
+                        </div>
+                      </div>
+                      <div className="mt-2 h-10">
+                        {hasSeries ? (
+                          <svg viewBox="0 0 120 40" className="h-full w-full">
+                            <path
+                              d={sparklinePath(series, 120, 40)}
+                              fill="none"
+                              stroke="currentColor"
+                              className="text-primary"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                            />
+                          </svg>
+                        ) : (
+                          <div className="text-[10px] text-muted-foreground">
+                            {bvcHistoryLoading ? 'Loading...' : 'No data'}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>

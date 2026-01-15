@@ -8,8 +8,8 @@ import os
 import time
 from datetime import datetime, timedelta
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Header
-from fastapi.responses import StreamingResponse
+from fastapi import APIRouter, Depends, HTTPException, Query, Header, Request
+from fastapi.responses import StreamingResponse, PlainTextResponse
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from sqlalchemy import func
@@ -17,11 +17,11 @@ from sqlalchemy import func
 from ..db import models
 from ..db.database import get_db
 from ..services.challenge_engine import ChallengeEngine
-from .market import get_market_overview as market_overview_handler
+from .market_data import get_market_overview as market_overview_handler
 from ..services.ai_service import AIService
 from ..services.caching import cache
 from ..services.access_control import require_funded_account
-from ..services.market_scraper_casablanca import get_casablanca_live_data
+from ..services.casablanca_service import get_casablanca_live_data
 from ..services.news_service import NewsService
 
 try:
@@ -97,6 +97,21 @@ def _resolve_range(range_label: str, date_from: Optional[str], date_to: Optional
     if label == "90d":
         return now - timedelta(days=90), now
     return now - timedelta(days=7), now
+
+
+def _get_cmi_urls() -> Dict[str, str]:
+    frontend_url = (os.environ.get("CMI_FRONTEND_URL") or os.environ.get("FRONTEND_URL") or "http://localhost:8080").rstrip("/")
+    backend_url = (os.environ.get("CMI_BACKEND_URL") or os.environ.get("BACKEND_URL") or "http://localhost:8001").rstrip("/")
+    ok_url = os.environ.get("CMI_OK_URL") or f"{frontend_url}/dashboard/challenge?mode=paid"
+    fail_url = os.environ.get("CMI_FAIL_URL") or f"{frontend_url}/checkout"
+    callback_url = os.environ.get("CMI_CALLBACK_URL") or f"{backend_url}/api/cmi/callback"
+    shop_url = os.environ.get("CMI_SHOP_URL") or frontend_url
+    return {
+        "ok_url": ok_url,
+        "fail_url": fail_url,
+        "callback_url": callback_url,
+        "shop_url": shop_url,
+    }
 
 
 def _date_range_days(start: datetime, end: datetime) -> List[str]:
@@ -1507,18 +1522,24 @@ def cmi_generate_form(payload: CMIRequest, db: Session = Depends(get_db)) -> Dic
     if challenge is None:
         raise HTTPException(status_code=404, detail="Challenge not found")
 
+    user = db.query(models.User).get(payload.user_id)
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    urls = _get_cmi_urls()
+    buyer_email = (user.email or "").strip() or os.environ.get("CMI_DEFAULT_EMAIL", "trader@tradesense.ai")
     fields = {
         "clientid": config.store_id,
         "amount": str(challenge.price_dh),
         "currency": "504",
         "oid": f"TS-{int(time.time())}-{payload.user_id}-{payload.challenge_id}",
-        "okUrl": "http://localhost:8080/dashboard/challenge?mode=paid",
-        "failUrl": "http://localhost:8080/checkout",
+        "okUrl": urls["ok_url"],
+        "failUrl": urls["fail_url"],
         "lang": "fr",
-        "email": "trader@tradesense.ai",
+        "email": buyer_email,
         "hashAlgorithm": "ver3",
-        "shopurl": "http://localhost:8080",
-        "callbackUrl": "http://localhost:8001/api/cmi/callback",
+        "shopurl": urls["shop_url"],
+        "callbackUrl": urls["callback_url"],
         "encoding": "UTF-8",
     }
 
@@ -1528,6 +1549,33 @@ def cmi_generate_form(payload: CMIRequest, db: Session = Depends(get_db)) -> Dic
 
     action_url = "https://test.cmi.ma/fim/est3Dgate" if config.mode == "test" else "https://payment.cmi.ma/fim/est3Dgate"
     return {"action": action_url, "fields": fields}
+
+
+@router.post("/cmi/callback")
+async def cmi_callback(request: Request, db: Session = Depends(get_db)) -> PlainTextResponse:
+    form_data = await request.form()
+    oid = form_data.get("oid") or form_data.get("OID")
+    response = form_data.get("Response") or form_data.get("response")
+
+    if response == "Approved" and oid:
+        parts = str(oid).split("-")
+        if len(parts) >= 4:
+            try:
+                user_id = int(parts[2])
+                challenge_id = int(parts[3])
+            except ValueError:
+                user_id = None
+                challenge_id = None
+            if user_id and challenge_id:
+                _activate_challenge(
+                    db,
+                    user_id,
+                    challenge_id,
+                    payment_method="cmi",
+                    transaction_id=str(oid),
+                )
+
+    return PlainTextResponse("ACTION=POSTAUTH", status_code=200)
 
 
 @router.post("/cmi/config")

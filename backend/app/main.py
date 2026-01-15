@@ -3,14 +3,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from sqlalchemy.orm import Session
 from sqlalchemy import inspect, text
-import asyncio
 import os
 import time
 
 from .db import models
 from .db.database import SessionLocal, engine, get_db
-from .api import market, challenges, extra, compat, auth, chat
-from .services.market_scraper_casablanca import scrape_casablanca_live_overview
+from .api import market, market_data, challenges, extra, compat, auth, chat
 from .services.auth import hash_password
 
 def load_env_file(path: str) -> None:
@@ -159,19 +157,6 @@ def on_startup():
     seed_challenges(db)
     db.close()
 
-    async def warm_cache_loop():
-        interval = int(os.environ.get("MARKET_PRELOAD_INTERVAL", "12"))
-        interval = max(5, min(interval, 60))
-        while True:
-            try:
-                await market.get_market_overview()
-                await asyncio.to_thread(scrape_casablanca_live_overview)
-            except Exception:
-                pass
-            await asyncio.sleep(interval)
-
-    app.state.warm_cache_task = asyncio.create_task(warm_cache_loop())
-
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
@@ -182,6 +167,7 @@ app.add_middleware(
 )
 
 app.include_router(market.router)
+app.include_router(market_data.router)
 app.include_router(challenges.router)
 app.include_router(extra.router)
 app.include_router(compat.router)

@@ -34,7 +34,7 @@ const Profile = () => {
   const navigate = useNavigate();
   const userId = getCurrentUserId();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const { setTheme } = useTheme();
+  const { setTheme, resolvedTheme } = useTheme();
   const { t, setLanguage, language } = useLanguage();
   const [darkMode, setDarkMode] = useState(true);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
@@ -79,11 +79,18 @@ const Profile = () => {
           country: data.country || '',
         });
         const nextLanguage = data.preferred_language || 'en';
-        const nextDarkMode = Boolean(data.dark_mode);
+        const nextDarkMode = typeof data.dark_mode === 'boolean' ? data.dark_mode : null;
         setSelectedLanguage(nextLanguage);
         setLanguage(nextLanguage);
-        setDarkMode(nextDarkMode);
-        setTheme(nextDarkMode ? 'dark' : 'light');
+        if (nextDarkMode === null) {
+          setDarkMode((resolvedTheme || 'dark') === 'dark');
+        } else {
+          setDarkMode(nextDarkMode);
+          const storedTheme = typeof window !== 'undefined' ? localStorage.getItem('theme') : null;
+          if (!storedTheme) {
+            setTheme(nextDarkMode ? 'dark' : 'light');
+          }
+        }
         setAvatarData(data.avatar_data || null);
       } catch (error) {
         toast({
@@ -94,7 +101,7 @@ const Profile = () => {
       }
     };
     loadProfile();
-  }, [toast, userId]);
+  }, [toast, userId, setLanguage, setTheme, resolvedTheme]);
 
   const getAuthHeaders = () => {
     if (typeof window === 'undefined') return {};
