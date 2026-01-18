@@ -158,9 +158,14 @@ def on_startup():
     db.close()
 
 # Configure CORS
+raw_origins = os.environ.get(
+    "FRONTEND_ORIGINS",
+    "https://tradsense-project-hj7w.vercel.app,http://localhost:5173,http://localhost:3000",
+)
+allowed_origins = [origin.strip() for origin in raw_origins.split(",") if origin.strip()]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, restrict this to the frontend URL
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
